@@ -1,8 +1,6 @@
-import org.gradle.internal.os.OperatingSystem.MAC_OS
-import org.gradle.internal.os.OperatingSystem.WINDOWS
-
 plugins {
     id("build-plugin")
+    id("application")
 }
 
 /**
@@ -11,10 +9,15 @@ plugins {
 nexus {
     configuration {
         module(":engine")
+        module(":engine:assets")
         module(":engine:editor")
         module(":plugins:opengl")
         module(":plugins:glfw")
     }
 
     extend(project(":engine"), "core", "lwjgl", "opengl", "imgui")
+}
+
+application {
+    mainClassName="marx.MainKt"
 }

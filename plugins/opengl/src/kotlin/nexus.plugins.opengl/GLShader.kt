@@ -1,8 +1,9 @@
 package nexus.plugins.opengl
 
-import marx.engine.*
-import marx.engine.events.Events.Shader.*
-import marx.engine.render.*
+import nexus.engine.Application
+import nexus.engine.events.Events.Shader.Compiled
+import nexus.engine.render.Shader
+import nexus.engine.texture.TextureInstance
 import org.joml.*
 import org.lwjgl.opengl.GL20.*
 
@@ -103,7 +104,7 @@ Compiles the shaders and links them. Will return the result along with the messa
     }
 
     /*
-   This should destroy the shader program. Called upon closing of a layer or the window/app
+   This should destroy the shader program. Called upon closing of a nexus.engine.layer or the window/app
      */
     override fun destroy() {
         glDeleteProgram(shaderProgram)
@@ -177,5 +178,11 @@ Unbind the shader, called when we are done writing.
     ) {
         val location = glGetUniformLocation(shaderProgram, uniform)
         glUniformMatrix3fv(location, false, matrix.get(mat3Buffer))
+    }
+
+    override fun uploadTexture(uniform: String, texture: TextureInstance, slot: Int) {
+        texture.bind(slot)
+        val location = glGetUniformLocation(shaderProgram, uniform)
+        glUniform1i(location, slot)
     }
 }

@@ -224,9 +224,6 @@ data class Configuration(val project: Project, val name: String) {
     fun runtimeOnly(value: String) = runtimeOnly(RuntimeOnly(value))
 
 
-    fun compile(value: Dependency) = dependency(value)
-    fun compile(value: String) = compile(Compile(value))
-
     /**
      * Adds all of the [config] to the other repository
      */
@@ -299,7 +296,7 @@ data class ProjectImplementation(
     override val isProject: Boolean
         get() = true
     override val dependencyGroup: String
-        get() = "compile"
+        get() = "implementation"
 }
 
 data class Implementation(

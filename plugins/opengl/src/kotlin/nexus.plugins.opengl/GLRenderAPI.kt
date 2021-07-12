@@ -1,16 +1,17 @@
 package nexus.plugins.opengl
 
-import marx.engine.nexus.plugins.glfw.IWindow
-import marx.engine.render.*
-import marx.engine.render.Buffer.*
-import marx.engine.scene.*
-import org.lwjgl.glfw.*
-import org.lwjgl.opengl.*
+import nexus.engine.glfw.IWindow
+import nexus.engine.render.Buffer.IndexBuffer
+import nexus.engine.render.RenderAPI
+import nexus.engine.render.VertexArray
+import nexus.engine.scene.RenderScene
+import org.lwjgl.glfw.GLFW
+import org.lwjgl.opengl.GL
 import org.lwjgl.opengl.GL11.*
-import org.lwjgl.system.*
+import org.lwjgl.system.MemoryUtil
 
 /*
- * This is the backend render context for opengl rendering related functionality
+ * This is the backend nexus.engine.render context for opengl rendering related functionality
  */
 open class GLRenderAPI(val window: IWindow, scene: RenderScene) : RenderAPI(GLRenderCommand(window), scene) {
     /*
@@ -27,8 +28,8 @@ Initialize the given graphics context
         GL.createCapabilities()
     }
 
-    /*
-Draws the given vertex array instanced, meaning we can render many of these statically.
+    /**
+     * Draws the given vertex array instanced, meaning we can nexus.engine.render many of these statically.
      */
     override fun drawIndexed(array: VertexArray) {
         glDrawElements(GL_TRIANGLES, array[IndexBuffer::class].indices.size, GL_UNSIGNED_INT, MemoryUtil.NULL)

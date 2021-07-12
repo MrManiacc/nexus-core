@@ -2,7 +2,7 @@ package nexus.plugins.opengl
 
 /*
  * Framebuffer Objects are OpenGL Objects, which allow for the creation of user-defined Framebuffers.
- * With them, one can render to non-Default Framebuffer locations, and thus render without disturbing the main screen.
+ * With them, one can nexus.engine.render to non-Default Framebuffer locations, and thus nexus.engine.render without disturbing the main screen.
  *
  * Framebuffer objects are a collection of attachments. To help explain lets explicitly define certain terminology.
  * 1. Image->

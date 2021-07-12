@@ -30,6 +30,3 @@ private fun Configuration.updateSources(target: Project) {
     sources.addToo(target, main)
 }
 
-private fun preEval(target: Project) {
-
-}

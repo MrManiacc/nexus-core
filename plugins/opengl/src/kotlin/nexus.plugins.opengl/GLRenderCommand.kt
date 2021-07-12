@@ -1,8 +1,9 @@
 package nexus.plugins.opengl
 
-import marx.engine.nexus.plugins.glfw.IWindow
-import marx.engine.render.*
-import marx.engine.render.RenderCommand.*
+import nexus.engine.glfw.IWindow
+
+import nexus.engine.render.*
+import nexus.engine.render.RenderCommand.*
 import org.lwjgl.opengl.GL11.*
 
 /*
@@ -44,7 +45,7 @@ Swap the given buffers of the graphics context
     }
 
     /*
-Poll the input for the graphics context
+Poll the nexus.engine.input for the graphics context
      */
     override fun poll() {
         window.pollInput()

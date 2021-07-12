@@ -1,6 +1,6 @@
 package nexus.plugins.opengl
 
-import marx.engine.render.*
+import nexus.engine.render.Buffer
 import org.lwjgl.opengl.GL20.*
 
 /*
@@ -34,9 +34,11 @@ Binds the buffer for drawing to the shader
     }
 
     /*
-   This can be sent to a shader to render the data it contains
+   This can be sent to a shader to nexus.engine.render the data it contains
      */
-    class GLVertexBuffer(verts: FloatArray, size: Int = 3) : Buffer.VertexBuffer(verts, size), GLBuffer {
+    class GLVertexBuffer(verts: FloatArray, val dataType: DataType, val index: Int) :
+        Buffer.VertexBuffer(verts, dataType.size),
+        GLBuffer {
         override var bufferId: Int = -1
         override val type: Int
             get() = GL_ARRAY_BUFFER
@@ -48,14 +50,23 @@ Binds the buffer for drawing to the shader
             bufferId = glGenBuffers()
             bind()
             glBufferData(type, vertices, GL_STATIC_DRAW)
-            glVertexAttribPointer(0, 3, GL_FLOAT, false, vertexSize * Float.SIZE_BYTES, 0L)
-            glEnableVertexAttribArray(0)
+            when (dataType) {
+                DataType.Float3, DataType.Float2, DataType.Float1 -> {
+                    glVertexAttribPointer(index, dataType.size, GL_FLOAT, false, dataType.stride, 0L)
+                    glEnableVertexAttribArray(index)
+                }
+                DataType.Int3, DataType.Int2, DataType.Int1 -> {
+                    glVertexAttribPointer(index, dataType.size, GL_INT, false, dataType.stride, 0L)
+                    glEnableVertexAttribArray(index)
+                }
+            }
+            unbind()
         }
-
     }
 
+
     /*
-   This can be sent to a shader to render the data it contains
+   This can be sent to a shader to nexus.engine.render the data it contains
      */
     class GLIndexBuffer(indices: IntArray) : Buffer.IndexBuffer(indices), GLBuffer {
         override var bufferId: Int = -1

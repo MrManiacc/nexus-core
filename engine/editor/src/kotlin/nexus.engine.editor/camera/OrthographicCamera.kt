@@ -1,13 +1,13 @@
 package nexus.engine.editor.camera
 
 import dorkbox.messageBus.annotations.*
-import marx.engine.events.*
-import marx.engine.camera.*
-import marx.engine.utils.MathUtils.radians
+import nexus.engine.events.*
+import nexus.engine.camera.*
+import nexus.engine.utils.MathUtils.radians
 import org.joml.*
 
 /**
- * Provides a 2d camera projections
+ * Provides a 2d nexus.engine.camera projections
  */
 class OrthographicCamera(
     left: Float,

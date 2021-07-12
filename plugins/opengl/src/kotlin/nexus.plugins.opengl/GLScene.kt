@@ -1,13 +1,16 @@
 package nexus.plugins.opengl
 
-import marx.engine.math.*
-import marx.engine.render.*
-import marx.engine.camera.*
-import marx.engine.scene.*
-import kotlin.reflect.*
+import nexus.engine.camera.Camera
+import nexus.engine.math.Transform
+import nexus.engine.render.RenderAPI
+import nexus.engine.render.Renderer
+import nexus.engine.render.Shader
+import nexus.engine.render.VertexArray
+import nexus.engine.scene.RenderScene
+import kotlin.reflect.KClass
 
 /**
- * This controls an editor's scene.
+ * This controls an editor's nexus.engine.scene.
  */
 class GLScene<API : RenderAPI>(
     private val apiType: KClass<API>
@@ -15,7 +18,7 @@ class GLScene<API : RenderAPI>(
     override val renderAPI: RenderAPI get() = Renderer(apiType)
     override lateinit var camera: Camera<*>
 
-    /*This will start a new scene*/
+    /*This will start a new nexus.engine.scene*/
     override fun beginScene(camera: Camera<*>) = Unit
 
     /*This method should be overloaded for all of the various types of things we can submit*/
@@ -58,12 +61,12 @@ class GLScene<API : RenderAPI>(
         shaderIn.unbind()
     }
 
-    /*This clears our all of objects or entities on the scene*/
+    /*This clears our all of objects or entities on the nexus.engine.scene*/
     override fun flush() = Unit
 
-    /*NumberEnds the current scene, renders all of the submitted meshes*/
+    /*NumberEnds the current nexus.engine.scene, renders all of the submitted meshes*/
     override fun endScene() {
-        //TODO: render the scene here using a render-queue/render-command system.
+        //TODO: nexus.engine.render the nexus.engine.scene here using a nexus.engine.render-queue/nexus.engine.render-command system.
     }
 
     override fun equals(other: Any?): Boolean {

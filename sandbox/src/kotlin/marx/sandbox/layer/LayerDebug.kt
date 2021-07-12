@@ -4,54 +4,74 @@ import imgui.ImGui
 import imgui.ImVec2
 import imgui.flag.ImGuiCond
 import imgui.flag.ImGuiWindowFlags.*
-import marx.engine.*
-import marx.engine.events.*
-import marx.engine.events.Events.App.Timestep
-import marx.engine.events.Events.Input.KeyPress
-import marx.engine.events.Events.Shader.*
-import marx.engine.layer.*
-import marx.engine.math.*
-import marx.engine.math.MathDSL.Extensions.by
-import marx.engine.math.MathDSL.Extensions.via
-import marx.engine.render.*
-import marx.engine.utils.StringUtils.format
-import marx.sandbox.*
-import mu.*
+import marx.sandbox.Sandbox
+import mu.KotlinLogging
+import nexus.engine.Application
 import nexus.engine.editor.dsl.MarxGui
 import nexus.engine.editor.wrapper.DebugRenderAPI
+import nexus.engine.events.Event
+import nexus.engine.events.Events.App.Timestep
+import nexus.engine.events.Events.Input.KeyPress
+import nexus.engine.events.Events.Shader.Compiled
+import nexus.engine.layer.Layer
+import nexus.engine.math.MathDSL.Extensions.by
+import nexus.engine.math.MathDSL.Extensions.via
+import nexus.engine.math.Transform
+import nexus.engine.math.Vec3
+import nexus.engine.render.Buffer.VertexBuffer.DataType.Float2
+import nexus.engine.render.Buffer.VertexBuffer.DataType.Float3
+import nexus.engine.render.VertexArray
+import nexus.engine.texture.TextureData
+import nexus.engine.texture.TextureInstance
+import nexus.engine.texture.TextureInstanceData
+import nexus.engine.utils.StringUtils.format
 import nexus.plugins.opengl.GLBuffer
 import nexus.plugins.opengl.GLShader
+import nexus.plugins.opengl.GLTexture2D
 import nexus.plugins.opengl.GLVertexArray
 import nexus.plugins.opengl.data.Shaders
-import org.joml.*
+import org.joml.Random
 import org.lwjgl.glfw.GLFW.*
-import org.slf4j.*
+import org.lwjgl.opengl.GL11.*
+import org.slf4j.Logger
 import kotlin.io.path.ExperimentalPathApi
 
 @ExperimentalPathApi
 
-/*This layer is used for debugging purpose*/
-class LayerDebug(app: Application<*>) : Layer<DebugRenderAPI>(app, DebugRenderAPI::class, "debug-layer") {
+/*This nexus.engine.layer is used for debugging purpose*/
+class LayerDebug(app: Application<*>) : Layer<DebugRenderAPI>(app, DebugRenderAPI::class, "debug-nexus.engine.layer") {
     private val log: Logger = KotlinLogging.logger { }
     private val rand: Random = Random(69420)
     private val flatShader = GLShader(app)
     private val editorShader = GLShader(app)
+    private val textureShader = GLShader(app)
     private val transform = Transform(Vec3(0f, 0f, 0f), 0f via 0f via 0f, Vec3(1f))
     private val transformBuffer = Transform(Vec3(0f, 0f, 0f), 0f via 0f via 0f, Vec3(1f))
-    private var colorOne = rand.nextFloat() by rand.nextFloat() by rand.nextFloat()
-    private var colorTwo = colorOne.z by rand.nextFloat() by rand.nextFloat()
-    private var colorThree = rand.nextFloat() by rand.nextFloat() by colorTwo.y
-    private var colorFour = rand.nextFloat() by colorOne.x by rand.nextFloat()
+
+    //=====================Texture testing==========================
+    private var texture = GLTexture2D().initialize(TextureData("textures/165524-1.jpg"))
+    private lateinit var textureInstance: TextureInstance
+    private lateinit var textureInstanceLinear: TextureInstance
+    //==============================================================
 
     /*This creates a quad of size 0.5*/
     val quadVAO: VertexArray = GLVertexArray().apply {
         this += GLBuffer.GLVertexBuffer(
             floatArrayOf(
-                0.5f, 0.5f, 0.0f,  // top right
-                0.5f, -0.5f, 0.0f,  // bottom right
+                0.5f, 0.5f, 0.0f, // top right
+                0.5f, -0.5f, 0.0f, // bottom right
                 -0.5f, -0.5f, 0.0f,  // bottom left
-                -0.5f, 0.5f, 0.0f // top left
-            ), 3
+                -0.5f, 0.5f, 0.0f// top left
+            ), Float3, 0
+        )
+
+        this += GLBuffer.GLVertexBuffer(
+            floatArrayOf(
+                0f, 0f,
+                1f, 0f,
+                1f, 1f,
+                0f, 1f
+            ), Float2, 1
         )
 
         this += GLBuffer.GLIndexBuffer(
@@ -69,7 +89,7 @@ class LayerDebug(app: Application<*>) : Layer<DebugRenderAPI>(app, DebugRenderAP
                 -0.5f, -0.5f, 0.0f,  // bottom left
                 0.5f, -0.5f, 0.0f,  // bottom right
                 0.0f, 0.5f, 0.0f, // top center
-            ), 3
+            ), Float3, 0
         )
 
         this += GLBuffer.GLIndexBuffer(
@@ -79,7 +99,7 @@ class LayerDebug(app: Application<*>) : Layer<DebugRenderAPI>(app, DebugRenderAP
         )
     }
 
-    /*This is called upon the layer being presented.*/
+    /*This is called upon the nexus.engine.layer being presented.*/
     override fun onAttach() {
         renderAPI.init()
         quadVAO.create()
@@ -88,6 +108,35 @@ class LayerDebug(app: Application<*>) : Layer<DebugRenderAPI>(app, DebugRenderAP
         if (editorShader.compile(Shaders.simple())) log.warn(
             "Successfully compiled editor shader: ${editorShader::class.qualifiedName}"
         )
+        if (textureShader.compile(Shaders.textureShader())) log.warn(
+            "Successfully compiled texture shader: ${editorShader::class.qualifiedName}"
+        )
+        textureInstance = texture.instantiate(
+            TextureInstanceData(
+                0,
+                GL_TEXTURE_MIN_FILTER to GL_LINEAR,
+                GL_TEXTURE_MAG_FILTER to GL_NEAREST
+            )
+        ) as TextureInstance
+
+
+
+    }
+
+    /*Draws our debug test nexus.engine.scene*/
+    private fun drawScene() {
+        scene.sceneOf(Sandbox.editorCamera) {
+            textureInstance.bind()
+            submit(quadVAO, textureShader, transformBuffer) { shader, transform ->
+                shader.uploadTexture("u_Texture", textureInstance)
+                shader.uploadMat4(
+                    "u_ModelMatrix", transform.matrix
+                        .identity()
+                        .translate(0f by 0f by 0f)
+                        .scale(1f)
+                )
+            }
+        }
     }
 
     /*This will draw every frame*/
@@ -97,7 +146,7 @@ class LayerDebug(app: Application<*>) : Layer<DebugRenderAPI>(app, DebugRenderAP
         renderAPI.frame { drawGui(time) }
     }
 
-    /*This updates the camera's position using the [time]*/
+    /*This updates the nexus.engine.camera's position using the [time]*/
     private fun updateCamera(time: Timestep) = Sandbox.editorCamera.let { cam ->
         val moveSpeed = Sandbox.editorCamera.moveSpeed
         val lookSpeed = Sandbox.editorCamera.lookSpeed
@@ -125,33 +174,8 @@ class LayerDebug(app: Application<*>) : Layer<DebugRenderAPI>(app, DebugRenderAP
         }
     }
 
-    /*Draws our debug test scene*/
-    private fun drawScene() {
 
-        scene.sceneOf(Sandbox.editorCamera) {
-            //TODO remove this it's EXPENSIVE!!!
-            for (y in -10..10) {
-                for (x in -10..10) {
-                    submit(quadVAO, flatShader, transformBuffer, { shader, transform ->
-                        shader.uploadMat4(
-                            "u_ModelMatrix", transform.matrix
-                                .identity()
-                                .translate(x * 0.11f by y * 0.11f by 0)
-                                .scale(0.10f)
-                        )
-                        if (x % 2 == 0 && y % 2 != 0) shader.uploadVec3("u_Color", colorOne)
-                        else if (x % 2 == 0 && y % 2 == 0) shader.uploadVec3("u_Color", colorTwo)
-                        else if (x % 2 != 0 && y % 2 == 0) shader.uploadVec3("u_Color", colorThree)
-                        else shader.uploadVec3("u_Color", colorFour)
-                    })
-                }
-            }
-
-            submit(triangleVAO, editorShader, transform)
-        }
-    }
-
-    /*This is called inside the render frame of imgui. It's an overlay so it should be last.*/
+    /*This is called inside the nexus.engine.render frame of imgui. It's an overlay so it should be last.*/
     private fun drawGui(update: Timestep) {
         val winPos = app.window.pos
         val size = app.window.size
@@ -159,6 +183,7 @@ class LayerDebug(app: Application<*>) : Layer<DebugRenderAPI>(app, DebugRenderAP
         var pos = ImVec2()
         var scale = ImVec2()
         val statesWidth = 200f
+
         ImGui.setNextWindowSize(statesWidth, 0f, ImGuiCond.Always)
         ImGui.setNextWindowPos(winPos.first + size.first - xInset, winPos.second + 20f, ImGuiCond.Once)
         if (ImGui.begin("metrics", NoResize or NoScrollbar or NoScrollWithMouse or NoCollapse or NoDocking)) {
@@ -194,14 +219,16 @@ class LayerDebug(app: Application<*>) : Layer<DebugRenderAPI>(app, DebugRenderAP
 
         ImGui.setNextWindowSize(statesWidth, 0f, ImGuiCond.Always)
         ImGui.setNextWindowPos(pos.x, pos.y + scale.y + 10, ImGuiCond.Always)
-        if (ImGui.begin("camera", NoResize or NoScrollbar or NoScrollWithMouse or NoCollapse or NoDocking)) {
+        if (ImGui.begin(
+                "nexus/engine/camera",
+                NoResize or NoScrollbar or NoScrollWithMouse or NoCollapse or NoDocking
+            )
+        ) {
             if (MarxGui.camera("EditorCamera", Sandbox.editorCamera)) {
-                log.warn("Updated camera")
+                log.warn("Updated nexus.engine.camera")
             }
         }
         ImGui.end()
-
-
 
 
     }
@@ -217,10 +244,6 @@ class LayerDebug(app: Application<*>) : Layer<DebugRenderAPI>(app, DebugRenderAP
                 editorShader.destroy()
                 editorShader.compile(Shaders.simple())
                 flatShader.compile(Shaders.flatShader())
-                colorOne = rand.nextFloat() by rand.nextFloat() by rand.nextFloat()
-                colorTwo = colorOne.z by rand.nextFloat() by rand.nextFloat()
-                colorThree = rand.nextFloat() by rand.nextFloat() by colorTwo.y
-                colorFour = rand.nextFloat() by colorOne.x by rand.nextFloat()
                 log.info("Reloaded shader: $flatShader")
             }
         }

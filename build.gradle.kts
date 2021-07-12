@@ -12,6 +12,3 @@ repositories {
 dependencies {
     implementation(kotlin("stdlib"))
 }
-
-allprojects{
-}

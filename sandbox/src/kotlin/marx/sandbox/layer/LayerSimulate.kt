@@ -1,25 +1,27 @@
 package marx.sandbox.layer
 
-import marx.engine.*
-import marx.engine.events.*
-import marx.engine.events.Events.App.Timestep
-import marx.engine.events.Events.Input.KeyPress
-import marx.engine.events.Events.Shader.*
-import marx.engine.layer.*
-import marx.engine.render.*
-import mu.*
+import mu.KotlinLogging
+import nexus.engine.Application
+import nexus.engine.events.Event
+import nexus.engine.events.Events.App.Timestep
+import nexus.engine.events.Events.Input.KeyPress
+import nexus.engine.events.Events.Shader.Compiled
+import nexus.engine.layer.Layer
+import nexus.engine.render.Buffer.VertexBuffer.DataType.Float3
+import nexus.engine.render.VertexArray
 import nexus.plugins.opengl.GLBuffer
 import nexus.plugins.opengl.GLRenderAPI
 import nexus.plugins.opengl.GLShader
 import nexus.plugins.opengl.GLVertexArray
 import nexus.plugins.opengl.data.Shaders
-import org.lwjgl.glfw.GLFW.*
-import org.slf4j.*
+import org.lwjgl.glfw.GLFW.GLFW_KEY_R
+import org.slf4j.Logger
 
 /*
- * This layer is used for debugging purposes
+ * This nexus.engine.layer is used for debugging purposes
  */
-class LayerSimulate(app: Application<*>) : Layer<GLRenderAPI>(app, GLRenderAPI::class, "simulation-layer") {
+class LayerSimulate(app: Application<*>) :
+    Layer<GLRenderAPI>(app, GLRenderAPI::class, "simulation-nexus.engine.layer") {
     private val log: Logger = KotlinLogging.logger { }
     private val shader = GLShader(app)
 
@@ -31,7 +33,7 @@ class LayerSimulate(app: Application<*>) : Layer<GLRenderAPI>(app, GLRenderAPI::
                 0.25f, -0.5f, 0.0f,  // bottom right
                 -0.5f, -0.5f, 0.0f,  // bottom left
                 -0.5f, 0.5f, 0.0f // top left
-            ), 3
+            ), Float3, 0
         )
 
         this += GLBuffer.GLIndexBuffer(
@@ -49,7 +51,7 @@ class LayerSimulate(app: Application<*>) : Layer<GLRenderAPI>(app, GLRenderAPI::
                 -0.33f, -0.5f, 0.0f,  // bottom left
                 0.0f, 0.33f, 0.0f, // top left
                 0.33f, -0.5f, 0.0f,  // bottom right
-            ), 3
+            ), Float3, 0
         )
 
         this += GLBuffer.GLIndexBuffer(
@@ -60,7 +62,7 @@ class LayerSimulate(app: Application<*>) : Layer<GLRenderAPI>(app, GLRenderAPI::
     }
 
     /*
-   This is called upon the layer being presented.
+   This is called upon the nexus.engine.layer being presented.
      */
     override fun onAttach() {
         renderAPI.init()

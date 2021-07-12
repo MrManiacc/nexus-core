@@ -6,9 +6,9 @@ import imgui.flag.*
 import imgui.gl3.*
 import imgui.glfw.*
 import imgui.type.*
-import marx.engine.nexus.plugins.glfw.IWindow
-import marx.engine.scene.*
-import marx.engine.utils.MathUtils.orEquals
+import nexus.engine.glfw.IWindow
+import nexus.engine.scene.*
+import nexus.engine.utils.MathUtils.orEquals
 import nexus.plugins.opengl.*
 import org.lwjgl.glfw.*
 import java.lang.IllegalStateException

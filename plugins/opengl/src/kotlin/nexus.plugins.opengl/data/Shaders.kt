@@ -1,6 +1,7 @@
 package nexus.plugins.opengl.data
 
-import marx.engine.render.Shader.*
+import nexus.engine.render.Shader.ShaderSource
+import nexus.engine.render.Shader.Type
 
 /*Stores a group of named shader sources.*/
 object Shaders {
@@ -73,6 +74,45 @@ object Shaders {
                 
                 void main(){
                     color = vec4(u_Color, 1.0);
+                }
+            """.trimIndent()
+            )
+        )
+    }
+
+
+    /*A simple shader that has it's version appended based upon what's passed in*/
+    fun textureShader(
+        version: String = "330",
+        core: Boolean = true
+    ): Pair<ShaderSource, ShaderSource> {
+        return prefixVersion(
+            version, core, ShaderSource(
+                Type.Vertex,
+                """
+                layout(location = 0) in vec3 a_Pos; //Imports the position in 3d space (relative to mesh origin) of this vertex.
+                layout(location = 1) in vec2 a_TexCord; 
+                
+                out vec2 v_TexCoord;
+                
+                uniform mat4 u_ViewProjection; //Calculations done on cpu side
+                uniform mat4 u_ModelMatrix;
+                
+                void main(){
+                    gl_Position = u_ViewProjection * u_ModelMatrix * vec4(a_Pos, 1.0);                    
+                    v_TexCoord = a_TexCord;
+                } 
+            """.trimIndent()
+            ) to ShaderSource(
+                Type.Fragment,
+                """
+                layout(location = 0) out vec4 color; 
+                in vec2 v_TexCoord;
+                uniform sampler2D u_Texture;
+                            
+                void main(){
+//                    color = vec4(v_TexCoord, 0.0, 1.0);    
+                    color = texture(u_Texture, v_TexCoord);
                 }
             """.trimIndent()
             )

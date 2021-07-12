@@ -1,4 +1,5 @@
-import org.gradle.internal.os.OperatingSystem.*
+import org.gradle.internal.os.OperatingSystem.MAC_OS
+import org.gradle.internal.os.OperatingSystem.WINDOWS
 
 plugins {
     id("build-plugin")
@@ -11,7 +12,7 @@ plugins {
 nexus {
     props {
         this["lwjgl_version"] = "3.2.3"
-        this["imgui_version"] = "1.83.0"
+        this["imgui_version"] = "1.83.2"
         this["kotlin_logging_version"] = "2.0.8"
         this["guava_version"] = "30.1.1-jre"
         this["message_bus_version"] = "2.4"
@@ -24,12 +25,16 @@ nexus {
         }
     }
 
+
+    configuration {
+        module(":engine:assets")
+    }
+
     /**
      * This core configuration can be applied to anyone that uses it to extend a given nexus plugin extension
      */
     configuration("core") {
         plugin("kotlin", "1.5.20")
-
         maven();
         jcenter();
         google()
@@ -38,7 +43,7 @@ nexus {
         implementation("io.github.microutils:kotlin-logging-jvm:@kotlin_logging_version")
         implementation("org.slf4j:slf4j-api:@slf4j_version")
         implementation("org.slf4j:slf4j-log4j12:@slf4j_version")
-        //Joml - math library
+        //Joml - nexus.engine.math library
         implementation("org.joml:joml:@joml_version")
         //Guava - utility library with lots of useful things
         implementation("com.google.guava:guava:@guava_version")

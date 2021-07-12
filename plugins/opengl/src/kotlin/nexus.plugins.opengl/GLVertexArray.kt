@@ -1,6 +1,7 @@
 package nexus.plugins.opengl
 
-import marx.engine.render.*
+import nexus.engine.render.Buffer
+import nexus.engine.render.VertexArray
 import org.lwjgl.opengl.GL30.*
 
 /*
@@ -44,7 +45,7 @@ data class GLVertexArray(
                 log.info { "Added vertex buffer: $it" }
             }
 
-    /*This allows for the use of drawing faced with indexes which reduces the render overhead*/
+    /*This allows for the use of drawing faced with indexes which reduces the nexus.engine.render overhead*/
     override fun <T : Buffer.IndexBuffer> addIndexBuffer(indexBuffer: T) =
         indexBuffer.apply { buffers += this }
             .let {

@@ -1,9 +1,9 @@
 package nexus.engine.editor.dsl
 
 import imgui.*
-import marx.engine.math.*
-import marx.engine.math.MathDSL.Extensions.from
-import marx.engine.camera.*
+import nexus.engine.math.*
+import nexus.engine.math.MathDSL.Extensions.from
+import nexus.engine.camera.*
 
 object MarxGui {
     private val position: FloatArray = FloatArray(3)
@@ -13,7 +13,7 @@ object MarxGui {
     private val lookSpeed: FloatArray = FloatArray(1)
 
     /**
-     * This will render out the given transform using the [name].
+     * This will nexus.engine.render out the given transform using the [name].
      * Returns true if we updated the value
      */
     fun transform(
@@ -42,7 +42,7 @@ object MarxGui {
     }
 
     /**
-     * This will render out the given transform using the [name].
+     * This will nexus.engine.render out the given transform using the [name].
      * Returns true if we updated the value
      */
     fun camera(
