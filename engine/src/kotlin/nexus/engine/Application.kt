@@ -4,6 +4,7 @@ package nexus.engine
 
 import dorkbox.messageBus.MessageBus
 import dorkbox.messageBus.annotations.Subscribe
+import nexus.engine.camera.CameraController
 import nexus.engine.events.Event
 import nexus.engine.events.Events
 import nexus.engine.events.Events.App.Initialized
@@ -16,14 +17,13 @@ import nexus.engine.glfw.IWindow
 import nexus.engine.input.IInput
 import nexus.engine.layer.LayerStack
 import nexus.engine.render.RenderAPI
+import nexus.engine.render.framebuffer.Framebuffer
 import nexus.engine.scene.RenderScene
-import java.nio.file.Path
-import kotlin.io.path.ExperimentalPathApi
 
 /**
  * This is the main entry for the marx engine. It
  */
-abstract class Application<API : RenderAPI>(assetPath: Path) : IBus, LayerStack {
+abstract class Application<API : RenderAPI>() : IBus, LayerStack {
     abstract val eventbus: MessageBus
     abstract val window: IWindow
     abstract val input: IInput
@@ -31,6 +31,10 @@ abstract class Application<API : RenderAPI>(assetPath: Path) : IBus, LayerStack 
     abstract var gameTime: Double
     abstract var startTime: Long
     val currentTime: Long get() = System.nanoTime()
+    val timestep: Timestep get() = globalTimestamp
+    val deltaTime: Float get() = timestep.deltaTime
+    abstract var controller: CameraController<API>
+    abstract val viewport: Framebuffer
 
     /*This will get the nexus.engine.render api for the specified [rendererType]**/
     abstract val renderAPI: API
@@ -49,7 +53,6 @@ abstract class Application<API : RenderAPI>(assetPath: Path) : IBus, LayerStack 
                 layer.onEvent(event)
                 if (event.isHandled) return
             }
-
         eventbus.publish(event)
     }
 
@@ -67,6 +70,7 @@ abstract class Application<API : RenderAPI>(assetPath: Path) : IBus, LayerStack 
      * Called upon updating of the game
      */
     open fun onUpdate(event: Timestep) {
+        controller.process(this)
         for (layerId in size - 1 downTo 0) {
             val layer = layers[layerId]
             layer.onUpdate(event)
@@ -82,9 +86,8 @@ abstract class Application<API : RenderAPI>(assetPath: Path) : IBus, LayerStack 
     /**
      * This is called upon the start of the application
      */
-    @ExperimentalPathApi
-
     open fun start() {
+        subscribe(controller)
         instance = this
 //        vsf.refresh(true)
         subscribe(input)
@@ -117,8 +120,6 @@ abstract class Application<API : RenderAPI>(assetPath: Path) : IBus, LayerStack 
     /**
      * This posts the shutdown event and then procendes to shutdown the main application
      */
-    @ExperimentalPathApi
-
     open fun destroy() {
         publish(Events.App.Shutdown(this))
         shutdown()
@@ -131,7 +132,7 @@ abstract class Application<API : RenderAPI>(assetPath: Path) : IBus, LayerStack 
     override fun shutdown() = eventbus.shutdown()
 
     companion object {
-        private val timestep: Timestep = Timestep(0.1f, 1.0f)
+        private val globalTimestamp: Timestep = Timestep(0.1f, 1.0f)
         lateinit var instance: Application<*>
     }
 

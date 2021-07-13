@@ -112,7 +112,7 @@ object Shaders {
                             
                 void main(){
 //                    color = vec4(v_TexCoord, 0.0, 1.0);    
-                    color = texture(u_Texture, v_TexCoord);
+                    color = texture(u_Texture, vec2(v_TexCoord.x, 1.0 - v_TexCoord.y));
                 }
             """.trimIndent()
             )

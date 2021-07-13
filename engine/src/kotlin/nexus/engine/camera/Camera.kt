@@ -1,11 +1,12 @@
 package nexus.engine.camera
 
-import nexus.engine.math.*
-import nexus.engine.comps.*
-
 import nexus.engine.comps.Position.*
-
-import org.joml.*
+import nexus.engine.comps.Rotation
+import nexus.engine.math.Comp
+import nexus.engine.math.IVec
+import nexus.engine.math.Transform
+import nexus.engine.math.Vec3
+import org.joml.Matrix4f
 
 /**
  * This root of a nexus.engine.camera.
@@ -17,7 +18,6 @@ abstract class Camera<C>(
     var lookSpeed: Float = 100f
 ) : Transform(position, rotation, Vec3()) {
     abstract var projectionMatrix: Matrix4f
-        protected set
 
     /*Used as a buffer for the view matrix**/
     protected

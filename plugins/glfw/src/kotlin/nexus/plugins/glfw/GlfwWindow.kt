@@ -1,12 +1,11 @@
 package nexus.plugins.glfw
 
 import dorkbox.messageBus.annotations.Subscribe
+import mu.KotlinLogging
 import nexus.engine.Application
 import nexus.engine.events.Events
 import nexus.engine.glfw.IWindow
-
 import nexus.engine.render.RenderAPI
-import mu.KotlinLogging
 import org.joml.Vector4i
 import org.lwjgl.glfw.GLFW
 import org.lwjgl.glfw.GLFWErrorCallback
@@ -184,7 +183,7 @@ data class GlfwWindow(
         GLFW.glfwSetScrollCallback(handle) { _, xOffset, yOffset ->
             mouseScrollEvent.xOffset = xOffset.toFloat()
             mouseScrollEvent.yOffset = yOffset.toFloat()
-            app.publish(mouseMoveEvent)
+            app.publish(mouseScrollEvent)
         }
 
         GLFW.glfwSetCursorPosCallback(handle) { _, x, y ->

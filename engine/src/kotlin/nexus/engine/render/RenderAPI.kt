@@ -2,6 +2,8 @@ package nexus.engine.render
 
 import nexus.engine.camera.Camera
 import nexus.engine.math.Transform
+import nexus.engine.render.framebuffer.Framebuffer
+import nexus.engine.render.framebuffer.FramebufferSpecification
 import nexus.engine.scene.RenderScene
 
 /**
@@ -22,16 +24,25 @@ abstract class RenderAPI(
     /*NumberDraws the given vertex array instanced, meaning we can nexus.engine.render many of these statically.*/
     abstract fun drawIndexed(array: VertexArray)
 
+    /**
+     * This should create/return a frame buffer for the givne specification.
+     */
+    abstract fun framebuffer(specification: FramebufferSpecification): Framebuffer
+
+
     /*This will register the api with the [Renderer]*/
     open fun register() =
         Renderer.set(this::class, this)
+
 
     /*Called upon unloading of the given renderAPI **/
     open fun dispose() {}
 
     companion object {
         /*Provides and a "null-safe" api. This will be the defaulted to renderApi **/
-        val Null: RenderAPI = object : RenderAPI(object : RenderCommand {}, object : RenderScene {
+        val Null: RenderAPI = object : RenderAPI(object : RenderCommand {
+            override fun blending(enabled: Boolean) = Unit
+        }, object : RenderScene {
             override val renderAPI: RenderAPI
                 get() = Renderer()
             override var camera: Camera<*> = Camera.Null()
@@ -48,6 +59,7 @@ abstract class RenderAPI(
             ) {
 
             }
+
             /*This wil send some arrbitrary data off to the */
             override fun submit(
                 array: VertexArray,
@@ -66,6 +78,13 @@ abstract class RenderAPI(
             override fun init() = Unit
             override fun register() = Unit
             override fun drawIndexed(array: VertexArray) = Unit
+
+            /**
+             * This should create/return a frame buffer for the givne specification.
+             */
+            override fun framebuffer(specification: FramebufferSpecification): Framebuffer {
+                TODO("Not yet implemented")
+            }
         }
     }
 

@@ -18,20 +18,16 @@ import nexus.engine.math.MathDSL.Extensions.by
 import nexus.engine.math.MathDSL.Extensions.via
 import nexus.engine.math.Transform
 import nexus.engine.math.Vec3
-import nexus.engine.render.Buffer.VertexBuffer.DataType.Float2
-import nexus.engine.render.Buffer.VertexBuffer.DataType.Float3
-import nexus.engine.render.VertexArray
 import nexus.engine.texture.TextureData
 import nexus.engine.texture.TextureInstance
 import nexus.engine.texture.TextureInstanceData
 import nexus.engine.utils.StringUtils.format
-import nexus.plugins.opengl.GLBuffer
 import nexus.plugins.opengl.GLShader
 import nexus.plugins.opengl.GLTexture2D
-import nexus.plugins.opengl.GLVertexArray
+import nexus.plugins.opengl.data.Primitives
 import nexus.plugins.opengl.data.Shaders
 import org.joml.Random
-import org.lwjgl.glfw.GLFW.*
+import org.lwjgl.glfw.GLFW.GLFW_KEY_R
 import org.lwjgl.opengl.GL11.*
 import org.slf4j.Logger
 import kotlin.io.path.ExperimentalPathApi
@@ -49,61 +45,16 @@ class LayerDebug(app: Application<*>) : Layer<DebugRenderAPI>(app, DebugRenderAP
     private val transformBuffer = Transform(Vec3(0f, 0f, 0f), 0f via 0f via 0f, Vec3(1f))
 
     //=====================Texture testing==========================
-    private var texture = GLTexture2D().initialize(TextureData("textures/165524-1.jpg"))
+    private var texture = GLTexture2D().initialize(TextureData("checkerboard.png"))
     private lateinit var textureInstance: TextureInstance
     private lateinit var textureInstanceLinear: TextureInstance
     //==============================================================
 
-    /*This creates a quad of size 0.5*/
-    val quadVAO: VertexArray = GLVertexArray().apply {
-        this += GLBuffer.GLVertexBuffer(
-            floatArrayOf(
-                0.5f, 0.5f, 0.0f, // top right
-                0.5f, -0.5f, 0.0f, // bottom right
-                -0.5f, -0.5f, 0.0f,  // bottom left
-                -0.5f, 0.5f, 0.0f// top left
-            ), Float3, 0
-        )
-
-        this += GLBuffer.GLVertexBuffer(
-            floatArrayOf(
-                0f, 0f,
-                1f, 0f,
-                1f, 1f,
-                0f, 1f
-            ), Float2, 1
-        )
-
-        this += GLBuffer.GLIndexBuffer(
-            intArrayOf(
-                0, 1, 3,   // first triangle
-                1, 2, 3    // second triangle
-            )
-        )
-    }
-
-    /*This creates a quad of size 0.5*/
-    val triangleVAO: VertexArray = GLVertexArray().apply {
-        this += GLBuffer.GLVertexBuffer(
-            floatArrayOf(
-                -0.5f, -0.5f, 0.0f,  // bottom left
-                0.5f, -0.5f, 0.0f,  // bottom right
-                0.0f, 0.5f, 0.0f, // top center
-            ), Float3, 0
-        )
-
-        this += GLBuffer.GLIndexBuffer(
-            intArrayOf(
-                0, 1, 2,   // first triangle
-            )
-        )
-    }
-
     /*This is called upon the nexus.engine.layer being presented.*/
     override fun onAttach() {
         renderAPI.init()
-        quadVAO.create()
-        triangleVAO.create()
+        Primitives.QuadVAO.create()
+        Primitives.TriangleVAO.create()
         if (flatShader.compile(Shaders.flatShader())) log.warn("Successfully compiled simple shader: ${flatShader::class.qualifiedName}")
         if (editorShader.compile(Shaders.simple())) log.warn(
             "Successfully compiled editor shader: ${editorShader::class.qualifiedName}"
@@ -125,9 +76,9 @@ class LayerDebug(app: Application<*>) : Layer<DebugRenderAPI>(app, DebugRenderAP
 
     /*Draws our debug test nexus.engine.scene*/
     private fun drawScene() {
-        scene.sceneOf(Sandbox.editorCamera) {
+        scene.sceneOf(Sandbox.controller) {
             textureInstance.bind()
-            submit(quadVAO, textureShader, transformBuffer) { shader, transform ->
+            submit(Primitives.QuadVAO, textureShader, transformBuffer) { shader, transform ->
                 shader.uploadTexture("u_Texture", textureInstance)
                 shader.uploadMat4(
                     "u_ModelMatrix", transform.matrix
@@ -141,37 +92,8 @@ class LayerDebug(app: Application<*>) : Layer<DebugRenderAPI>(app, DebugRenderAP
 
     /*This will draw every frame*/
     override fun onUpdate(time: Timestep) {
-        updateCamera(time)
         drawScene()
         renderAPI.frame { drawGui(time) }
-    }
-
-    /*This updates the nexus.engine.camera's position using the [time]*/
-    private fun updateCamera(time: Timestep) = Sandbox.editorCamera.let { cam ->
-        val moveSpeed = Sandbox.editorCamera.moveSpeed
-        val lookSpeed = Sandbox.editorCamera.lookSpeed
-        with(app.input) {
-            if (isKeyDown(GLFW_KEY_D))
-                cam x (moveSpeed * time.deltaTime)
-            if (isKeyDown(GLFW_KEY_A))
-                cam x (moveSpeed * time.deltaTime) * -1
-            if (isKeyDown(GLFW_KEY_Q))
-                cam roll (lookSpeed * time.deltaTime) * -1
-            if (isKeyDown(GLFW_KEY_E))
-                cam roll (lookSpeed * time.deltaTime)
-            if (isKeyDown(GLFW_KEY_S))
-                cam y (moveSpeed * time.deltaTime) * -1
-            if (isKeyDown(GLFW_KEY_W))
-                cam y (moveSpeed * time.deltaTime)
-            if (isKeyDown(GLFW_KEY_RIGHT))
-                transform x (time.deltaTime)
-            if (isKeyDown(GLFW_KEY_LEFT))
-                transform x (time.deltaTime) * -1
-            if (isKeyDown(GLFW_KEY_UP))
-                transform y (time.deltaTime)
-            if (isKeyDown(GLFW_KEY_DOWN))
-                transform y (time.deltaTime) * -1
-        }
     }
 
 
@@ -224,9 +146,9 @@ class LayerDebug(app: Application<*>) : Layer<DebugRenderAPI>(app, DebugRenderAP
                 NoResize or NoScrollbar or NoScrollWithMouse or NoCollapse or NoDocking
             )
         ) {
-            if (MarxGui.camera("EditorCamera", Sandbox.editorCamera)) {
-                log.warn("Updated nexus.engine.camera")
-            }
+//            if (MarxGui.camera("EditorCamera", Sandbox.editorCamera)) {
+//                log.warn("Updated nexus.engine.camera")
+//            }
         }
         ImGui.end()
 
@@ -252,8 +174,8 @@ class LayerDebug(app: Application<*>) : Layer<DebugRenderAPI>(app, DebugRenderAP
     override fun onDetach() {
         editorShader.destroy()
         flatShader.destroy()
-        quadVAO.dispose()
-        triangleVAO.dispose()
+        Primitives.QuadVAO.dispose()
+        Primitives.TriangleVAO.dispose()
     }
 
 

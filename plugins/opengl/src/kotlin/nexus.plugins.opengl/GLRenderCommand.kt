@@ -1,9 +1,8 @@
 package nexus.plugins.opengl
 
 import nexus.engine.glfw.IWindow
-
-import nexus.engine.render.*
-import nexus.engine.render.RenderCommand.*
+import nexus.engine.render.RenderCommand
+import nexus.engine.render.RenderCommand.ClearFlags
 import org.lwjgl.opengl.GL11.*
 
 /*
@@ -35,6 +34,15 @@ Clear the screen with the given color
         if (color != null)
             if (color.size == 4) glClearColor(color[0], color[1], color[2], color[3])
             else if (color.size == 3) glClearColor(color[0], color[1], color[2], 1.0f)
+    }
+
+    override fun blending(enabled: Boolean) {
+        if (enabled) {
+            glEnable(GL_BLEND)
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+        } else {
+            glDisable(GL_BLEND)
+        }
     }
 
     /*

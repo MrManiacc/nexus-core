@@ -13,6 +13,8 @@ abstract class VertexArray {
     protected val log = KotlinLogging.logger { }
     val size: Int get() = buffers.size
 
+
+
     /*
 Create the vertex array. Must be done after the given renderAPI is setup.
      */

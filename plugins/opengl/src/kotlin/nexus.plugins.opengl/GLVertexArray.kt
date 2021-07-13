@@ -11,7 +11,11 @@ import org.lwjgl.opengl.GL30.*
 data class GLVertexArray(
     override val buffers: MutableList<Buffer> = ArrayList()
 ) : VertexArray() {
+
+    constructor(vararg buffer: Buffer) : this(buffer.toMutableList())
+
     private var array: Int = -1
+
 
     /*Createthe vertex array. Must be done after the given renderAPI is setup.*/
     override fun create() {

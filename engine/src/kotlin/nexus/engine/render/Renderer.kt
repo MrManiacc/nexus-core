@@ -1,9 +1,9 @@
 package nexus.engine.render
 
-import com.google.common.collect.*
-import mu.*
-import java.lang.IllegalStateException
-import kotlin.reflect.*
+import com.google.common.collect.Maps
+import mu.KotlinLogging
+import kotlin.reflect.KClass
+import kotlin.reflect.safeCast
 
 /*
  * This is hte core of the

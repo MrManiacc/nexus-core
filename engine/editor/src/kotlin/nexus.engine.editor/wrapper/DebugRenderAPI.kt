@@ -1,17 +1,18 @@
 package nexus.engine.editor.wrapper
 
 import imgui.*
-import imgui.extension.nodeditor.*
+import imgui.extension.nodeditor.NodeEditor
+import imgui.extension.nodeditor.NodeEditorContext
 import imgui.flag.*
-import imgui.gl3.*
-import imgui.glfw.*
-import imgui.type.*
+import imgui.gl3.ImGuiImplGl3
+import imgui.glfw.ImGuiImplGlfw
+import imgui.type.ImInt
+import nexus.engine.editor.render.Element
 import nexus.engine.glfw.IWindow
-import nexus.engine.scene.*
+import nexus.engine.scene.RenderScene
 import nexus.engine.utils.MathUtils.orEquals
-import nexus.plugins.opengl.*
-import org.lwjgl.glfw.*
-import java.lang.IllegalStateException
+import nexus.plugins.opengl.GLRenderAPI
+import org.lwjgl.glfw.GLFW
 import imgui.internal.ImGui as ImGuiInternal
 import imgui.internal.flag.ImGuiDockNodeFlags as ImGuiDockNodeInternalFlags
 
@@ -48,10 +49,12 @@ class DebugRenderAPI(
      */
 
     override fun init() {
+        super.init()
         if (!init) {
             initImGui()
             imGuiGlfw.init(handle, true);
-            nodeEditor = NodeEditor.createEditor() ?: throw IllegalStateException("Failed to create node editor context")
+            nodeEditor =
+                NodeEditor.createEditor() ?: throw IllegalStateException("Failed to create node editor context")
             imGuiGl3.init("#version 120"); //Use version of #330 for mac support (minium required version otherwise exception on mac)
             init = true
         }
@@ -146,7 +149,7 @@ class DebugRenderAPI(
     /*
    This is a magic kotlin wrapper for a frame start with an automatic end.
      */
-    fun frame(frame: () -> Unit) {
+    fun  frame(frame: () -> Unit) {
         startFrame()
         frame()
         endFrame()
@@ -194,8 +197,7 @@ class DebugRenderAPI(
      */
     fun dockspace(
         name: String,
-        nodes: () -> Unit,
-        editor: () -> Unit
+        element: Element
     ) {
         val flags = ImGuiWindowFlags.NoNavFocus.orEquals(
             ImGuiWindowFlags.NoTitleBar,
@@ -219,12 +221,10 @@ class DebugRenderAPI(
         dockspaceID = ImGui.getID(dockspaceId)
         ImGui.dockSpace(dockspaceID, 0f, 0f, ImGuiDockNodeFlags.None)
         ImGui.end()
-        ImGui.begin("Editor##$name", ImGuiWindowFlags.NoCollapse or ImGuiWindowFlags.NoBringToFrontOnFocus)
-        editor()
-        ImGui.end()
-        ImGui.begin("Nodes##$name", ImGuiWindowFlags.NoCollapse or ImGuiWindowFlags.NoBringToFrontOnFocus)
-        nodes()
-        ImGui.end()
+        element.process()
+//        ImGui.begin("Nodes##$name", ImGuiWindowFlags.NoCollapse or ImGuiWindowFlags.NoBringToFrontOnFocus)
+//        nodes()
+//        ImGui.end()
     }
 
     /*

@@ -1,6 +1,7 @@
 package nexus.engine.scene
 
 import nexus.engine.camera.Camera
+import nexus.engine.camera.CameraController
 import nexus.engine.math.Transform
 import nexus.engine.render.RenderAPI
 import nexus.engine.render.Shader
@@ -15,10 +16,10 @@ interface RenderScene {
 
     /*Creates a new nexus.engine.scene of the */
     fun sceneOf(
-        camera: Camera<*>,
+        cameraController: CameraController<*>,
         body: RenderScene.() -> Unit
     ) {
-        this.camera = camera
+        this.camera = cameraController.camera
         beginScene(camera)
         body()
         endScene()

@@ -12,6 +12,10 @@ Clear the screen with the given color
      */
     fun clear(color: FloatArray? = floatArrayOf(0.1f, 0.1f, 0.1f, 1f), clearFlags: ClearFlags = ClearFlags.COLOR) = Unit
 
+
+    fun blending(enabled: Boolean)
+
+
     /*
 Swap the given buffers of the graphics context
      */

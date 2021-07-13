@@ -1,8 +1,5 @@
 @file:Suppress("INACCESSIBLE_TYPE")
 
-import org.gradle.internal.os.OperatingSystem.MAC_OS
-import org.gradle.internal.os.OperatingSystem.WINDOWS
-
 plugins {
     id("build-plugin")
 }
@@ -14,6 +11,8 @@ nexus {
     configuration {
         module(":engine")
         module(":plugins:opengl")
+        module(":plugins:glfw")
+        module(":engine:assets")
     }
 
     extend(project(":engine"), "core", "lwjgl", "imgui")

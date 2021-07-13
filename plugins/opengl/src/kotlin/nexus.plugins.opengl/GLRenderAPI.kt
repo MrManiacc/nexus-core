@@ -4,6 +4,8 @@ import nexus.engine.glfw.IWindow
 import nexus.engine.render.Buffer.IndexBuffer
 import nexus.engine.render.RenderAPI
 import nexus.engine.render.VertexArray
+import nexus.engine.render.framebuffer.Framebuffer
+import nexus.engine.render.framebuffer.FramebufferSpecification
 import nexus.engine.scene.RenderScene
 import org.lwjgl.glfw.GLFW
 import org.lwjgl.opengl.GL
@@ -33,6 +35,13 @@ Initialize the given graphics context
      */
     override fun drawIndexed(array: VertexArray) {
         glDrawElements(GL_TRIANGLES, array[IndexBuffer::class].indices.size, GL_UNSIGNED_INT, MemoryUtil.NULL)
+    }
+
+    /**
+     * This should create/return a frame buffer for the givne specification.
+     */
+    override fun framebuffer(specification: FramebufferSpecification): Framebuffer {
+        return GLFramebuffer(specification)
     }
 
 }

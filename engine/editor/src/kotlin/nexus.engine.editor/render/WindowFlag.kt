@@ -1,4 +1,4 @@
-package nexus.engine.editor.ui
+package nexus.engine.editor.render
 
 enum class WindowFlag(val value: Int) {
     None(0), NoTitleBar(1), NoResize(1 shl 1),
@@ -12,7 +12,6 @@ enum class WindowFlag(val value: Int) {
     NoNav(NoNavInputs.value or NoNavFocus.value),
     NoDecoration(NoTitleBar.value or NoResize.value or NoScrollBar.value or NoCollapse.value),
     NoInputs(NoMouseInputs.value or NoNavInputs.value or NoNavFocus.value);
-
     operator fun invoke(): Int = value
 
 

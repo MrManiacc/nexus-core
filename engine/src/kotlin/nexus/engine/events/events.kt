@@ -1,11 +1,9 @@
 package nexus.engine.events
 
+
 import nexus.engine.Application
 import nexus.engine.glfw.IWindow
-
-
-import nexus.engine.render.*
-import nexus.engine.render.Shader.*
+import nexus.engine.render.Shader.CompileResult
 import nexus.engine.utils.StringUtils.format
 import nexus.engine.render.Shader as RenderShader
 
@@ -39,6 +37,11 @@ Used for imgui related nexus.engine.events
         class PropertiesOverlay : Event()
     }
 
+
+    object Camera {
+        data class Resize(var width: Int, var height: Int) : Event()
+    }
+
     /*
    This stores all of our window nexus.engine.events
      */
@@ -50,6 +53,7 @@ Used for imgui related nexus.engine.events
             var width: Int,
             var height: Int
         ) : Event()
+
 
         data class Destroy(val window: IWindow) : Event()
     }
