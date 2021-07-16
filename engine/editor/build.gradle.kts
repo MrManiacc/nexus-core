@@ -13,6 +13,8 @@ nexus {
         module(":plugins:opengl")
         module(":plugins:glfw")
         module(":engine:assets")
+        module(":engine:extension")
+
     }
 
     extend(project(":engine"), "core", "lwjgl", "imgui")

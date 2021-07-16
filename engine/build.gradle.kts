@@ -18,6 +18,7 @@ nexus {
         this["message_bus_version"] = "2.4"
         this["slf4j_version"] = "1.7.5"
         this["joml_version"] = "1.10.1"
+        this["classgraph_version"] = "4.8.110"
         this["native"] = when (org.gradle.internal.os.OperatingSystem.current()) {
             WINDOWS -> "natives-windows"
             MAC_OS -> "natives-macos"
@@ -28,13 +29,16 @@ nexus {
 
     configuration {
         module(":engine:assets")
+        module(":engine:extension")
     }
+
 
     /**
      * This core configuration can be applied to anyone that uses it to extend a given nexus plugin extension
      */
     configuration("core") {
         plugin("kotlin", "1.5.20")
+        plugin("org.jetbrains.kotlin.plugin.serialization", "1.5.20")
         maven();
         jcenter();
         google()
@@ -50,9 +54,12 @@ nexus {
         //MessageBus - an event bus used for notifying the system of things
         implementation("com.dorkbox:MessageBus:@message_bus_version")
         implementation("org.jetbrains.kotlin:kotlin-reflect:1.5.20")
+        implementation("io.github.classgraph:classgraph:@classgraph_version")
+        implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.2")
+
         sources {
-            source("src/kotlin")
-            resource("src/resource")
+            source("src/main/kotlin")
+            resource("src/main/resource")
         }
 
     }

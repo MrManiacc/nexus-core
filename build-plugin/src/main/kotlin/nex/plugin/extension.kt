@@ -95,7 +95,7 @@ data class SourceSet(
      */
     internal fun getPath(source: String, relativeToProject: Boolean, project: Project): File {
         val path = source.replace("/", File.separator).replace("\\", File.separator)
-        return File(if (relativeToProject) project.projectDir else project.rootDir, path)
+        return java.io.File(if (relativeToProject) project.projectDir else project.rootDir, path)
     }
 
     fun addTo(sources: SourceSet) {
