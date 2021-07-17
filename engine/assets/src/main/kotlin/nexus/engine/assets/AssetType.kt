@@ -306,7 +306,7 @@ class AssetType<T : Asset<U>, U : AssetData>(
         }
     }
 
-    private fun processDisposal() {
+    fun processDisposal() {
         var ref: Reference<out Asset<U>?>? = disposalQueue.poll()
         while (ref != null) {
             val assetRef = ref as AssetReference<out Asset<U>>

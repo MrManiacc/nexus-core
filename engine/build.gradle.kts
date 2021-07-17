@@ -42,7 +42,7 @@ nexus {
         maven();
         jcenter();
         google()
-        implementation("org.reflections:reflections:0.9.12")
+        implementation("net.oneandone.reflections8:reflections8:0.11.7")
         implementation("com.googlecode.gentyref:gentyref:1.2.0")
 
         //Kotlin logging/slf4j - logging libraries

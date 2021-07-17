@@ -1,5 +1,6 @@
 package nexus.engine.assets
 
+import nexus.engine.assets.format.AssetFileFormat
 import kotlin.reflect.KClass
 
 /**
@@ -13,8 +14,8 @@ annotation class RegisterAssetType(
     val factory: KClass<out AssetFactory<*, *>>,
 
     /**
-     * Any extensions will be automatically mapped and loaded to this asset's factory
+     * This is the required type, we must specify the factory if we wish to auto load.
      */
-    vararg val extension: String,
+    val format: KClass<out AssetFileFormat<*>>,
 ) {
 }

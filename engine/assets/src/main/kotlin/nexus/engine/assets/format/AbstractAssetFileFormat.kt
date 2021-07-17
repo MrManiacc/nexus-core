@@ -1,5 +1,6 @@
 package nexus.engine.assets.format
 
+import mu.KotlinLogging
 import nexus.engine.assets.AssetData
 import nexus.engine.resource.InvalidAssetFilenameException
 import nexus.engine.resource.Name
@@ -14,6 +15,7 @@ import java.util.function.Predicate
  * @author Immortius
  */
 abstract class AbstractAssetFileFormat<T : AssetData> : AssetFileFormat<T> {
+    protected val logger = KotlinLogging.logger {  }
     override var fileMatcher: Predicate<FileReference>
         protected set
 

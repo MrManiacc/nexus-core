@@ -11,6 +11,8 @@ import nexus.editor.gui.impl.AbstractToolPanel
 import nexus.editor.gui.internal.Anchor
 import nexus.editor.gui.internal.DockFlag
 import nexus.engine.Application
+import nexus.engine.assets.AssetTypeManager
+import nexus.engine.assets.invoke
 import nexus.engine.render.RenderAPI
 import java.nio.file.Path
 
@@ -22,7 +24,7 @@ class ContentPanel<API : RenderAPI>(
     /**
      * This is used to recursively build a tree of [AssetWidget]
      */
-    val path: Path
+    val path: Path,
 ) : AbstractToolPanel(
     id = "nexus.editor.assets",
     anchor = Anchor.Down,
@@ -39,12 +41,9 @@ class ContentPanel<API : RenderAPI>(
      * Adds our test data
      */
     override fun addedTo(parent: Element) {
-        add(AssetWidget("empty", Icons.Folder.Empty))
-        add(AssetWidget("data.dat", Icons.File.Data))
-        add(AssetWidget("image.png", Icons.File.Image))
-        add(AssetWidget("image2.png", Icons.File.Image))
-        for (i in 1 until 10)
-            add(AssetWidget("folder_$i", Icons.Folder.Folder))
+        AssetTypeManager().source.files.filter { it.name.endsWith(".png") || it.name.endsWith(".xml") || it.name.endsWith("jpeg") }.forEach {
+            add(AssetWidget(it.fullName, Icons.File.Image))
+        }
     }
 
 
@@ -80,6 +79,13 @@ class ContentPanel<API : RenderAPI>(
         val max = (width / 210f).toInt() //250 = the size we allocate per icon
         ImGui.pushStyleColor(ImGuiCol.FrameBg, 152f / 255, 152f / 255, 179f / 255, 1f)
         if (ImGui.beginChild("files_viewer##${this.id}")) {
+            if (ImGui.button("do testing")) {
+                val source = AssetTypeManager().source
+
+
+            }
+
+
             if (ImGui.beginTable("asset_table", max)) {
                 widgets.forEach {
                     ImGui.tableNextColumn()

@@ -15,9 +15,18 @@ interface FileReference {
     val name: String
 
     /**
+     * @return The name of the file
+     */
+    val fullName: String
+    /**
      * @return The path to the file (within the file source)
      */
     val path: List<String>
+
+    /**
+     * We're a folder if the last path offset isnt a fi
+     */
+    val isFolder: Boolean get() = !path.last().contains(".")
 
     /**
      * @return An new InputStream for reading the file. Closing the stream is the duty of the caller

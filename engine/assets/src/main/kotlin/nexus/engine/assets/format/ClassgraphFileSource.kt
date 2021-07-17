@@ -3,7 +3,7 @@ package nexus.engine.assets.format
 import com.google.common.base.Joiner
 import io.github.classgraph.Resource
 import nexus.engine.assets.RegisterAssetType
-import org.reflections.Reflections
+import org.reflections8.Reflections
 import java.io.InputStream
 import java.util.*
 import java.util.function.Function
@@ -139,6 +139,11 @@ class ClassgraphFileSource(
             get() {
                 return subpath.substring(subpath.lastIndexOf(CLASS_PATH_SEPARATOR) + 1)
             }
+
+        /**
+         * @return The name of the file
+         */
+        override val fullName: String = subpath
 
         override val path: List<String>
             get() {

@@ -84,6 +84,12 @@ class ArchiveFileSource(file: File, contentsFilter: Predicate<String>, vararg su
                     internalFile.substring(lastPathSeparator + 1)
                 } else internalFile
             }
+
+        /**
+         * @return The name of the file
+         */
+        override val fullName: String = zipFile.path
+
         override val path: List<String>
             get() {
                 val parts = Arrays.asList(*internalFile.substring(

@@ -34,6 +34,10 @@ class LayerEditor(app: Application<*>) : Layer<DebugRenderAPI>(app, DebugRenderA
 
     override fun onUpdate(update: Timestep) {
         renderAPI.frame {
+//            AssetTypeManager().files.forEach {
+//                ImGui.text(it.name)
+//            }
+
             ImGui.getIO().deltaTime = update.deltaTime
             workspace.render()
         }

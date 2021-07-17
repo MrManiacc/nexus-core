@@ -37,6 +37,7 @@ abstract class Asset<U : AssetData>(val urn: ResourceUrn, val assetType: AssetTy
         reload(data)
     }
 
+
     /**
      * This keeps track of whether or not we've disposed our assets
      */
