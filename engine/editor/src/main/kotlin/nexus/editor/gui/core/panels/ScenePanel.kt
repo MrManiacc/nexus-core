@@ -2,8 +2,7 @@ package nexus.editor.gui.core.panels
 
 import imgui.flag.ImGuiCol
 import imgui.flag.ImGuiStyleVar
-import nexus.editor.gui.Node
-import nexus.editor.gui.impl.BaseToolPanel
+import nexus.editor.gui.impl.AbstractToolPanel
 import nexus.editor.gui.internal.Anchor
 import nexus.editor.gui.internal.DockFlag
 import nexus.editor.gui.theme.PanelTheme
@@ -13,19 +12,12 @@ import nexus.engine.render.RenderAPI
 /**
  * This panel is used for the main viewport
  */
-class ScenePanel<API : RenderAPI>(val app: Application<API>) : BaseToolPanel(
+class ScenePanel<API : RenderAPI>(val app: Application<API>) : AbstractToolPanel(
     id = "nexus.editor.scene",
     anchor = Anchor.Left,
     sizeRatio = 0.2f,
     dockFlags = arrayOf(DockFlag.AutoHideTabBar)
 ) {
-    /**
-     * This is called upon this being added to the [parent]
-     */
-    override fun addedTo(parent: Node) {
-
-    }
-
 
     /**
      * This allow for the user to customize the window before it's creation

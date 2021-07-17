@@ -9,5 +9,5 @@ plugins {
  */
 nexus {
 
-    extend(project(":engine"), "core")
+    extend(project(":engine"), "core", "lwjgl-nogl")
 }

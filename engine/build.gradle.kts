@@ -29,7 +29,7 @@ nexus {
 
     configuration {
         module(":engine:assets")
-        module(":engine:extension")
+        module(":engine:registry")
     }
 
 
@@ -42,6 +42,8 @@ nexus {
         maven();
         jcenter();
         google()
+        implementation("org.reflections:reflections:0.9.12")
+        implementation("com.googlecode.gentyref:gentyref:1.2.0")
 
         //Kotlin logging/slf4j - logging libraries
         implementation("io.github.microutils:kotlin-logging-jvm:@kotlin_logging_version")
@@ -57,11 +59,31 @@ nexus {
         implementation("io.github.classgraph:classgraph:@classgraph_version")
         implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.2")
 
+        implementation("net.onedaybeard.artemis:artemis-odb:2.3.0")
+
         sources {
             source("src/main/kotlin")
             resource("src/main/resource")
         }
 
+    }
+
+    configuration("lwjgl-nogl") {
+        platform("org.lwjgl:lwjgl-bom:@lwjgl_version")
+
+        //Here we define our lwjgl libraries
+        implementation("org.lwjgl:lwjgl:@lwjgl_version")
+        implementation("org.lwjgl:lwjgl-assimp:@lwjgl_version")
+        implementation("org.lwjgl:lwjgl-par:@lwjgl_version")
+        implementation("org.lwjgl:lwjgl-stb:@lwjgl_version")
+        implementation("org.lwjgl:lwjgl-zstd:@lwjgl_version")
+
+        //Here we define our native lwjgl libraries
+        runtimeOnly("org.lwjgl:lwjgl::@native")
+        runtimeOnly("org.lwjgl:lwjgl-assimp::@native")
+        runtimeOnly("org.lwjgl:lwjgl-par::@native")
+        runtimeOnly("org.lwjgl:lwjgl-stb::@native")
+        runtimeOnly("org.lwjgl:lwjgl-zstd::@native")
     }
 
     /**

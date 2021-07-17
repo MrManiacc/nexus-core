@@ -8,7 +8,7 @@ import nexus.editor.gui.internal.Anchor
  * someting like File -> Project Settings, where the popup window, the actual ui content will be the equilvent of this
  * [FloatWindow] class
  */
-interface Window : Node {
+interface Window : Element {
     /**
      * THis is only used for the starting position of the float window, in reality
      * it can be dragged around like any other normal window

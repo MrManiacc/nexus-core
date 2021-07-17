@@ -4,7 +4,7 @@ import dorkbox.messageBus.annotations.Subscribe
 import mu.KotlinLogging
 import nexus.engine.Application
 import nexus.engine.events.Events
-import nexus.engine.glfw.IWindow
+import nexus.engine.window.IWindow
 import nexus.engine.render.RenderAPI
 import org.joml.Vector4i
 import org.lwjgl.glfw.GLFW

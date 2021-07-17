@@ -2,7 +2,8 @@ package nexus.engine.events
 
 
 import nexus.engine.Application
-import nexus.engine.glfw.IWindow
+import nexus.engine.window.IWindow
+import nexus.engine.math.Vec2
 import nexus.engine.render.Shader.CompileResult
 import nexus.engine.utils.StringUtils.format
 import nexus.engine.render.Shader as RenderShader
@@ -25,17 +26,13 @@ Used for imgui related nexus.engine.events
     class Shader {
         data class Compiled(
             val shader: RenderShader,
-            val result: CompileResult
+            val result: CompileResult,
         ) : Event()
     }
 
     /*
 Used for imgui related nexus.engine.events
      */
-    class Gui {
-        class ViewportOverlay : Event()
-        class PropertiesOverlay : Event()
-    }
 
 
     object Camera {
@@ -51,7 +48,8 @@ Used for imgui related nexus.engine.events
         data class Resize(
             val window: IWindow,
             var width: Int,
-            var height: Int
+            var height: Int,
+            var pos: Vec2 = Vec2(),
         ) : Event()
 
 
@@ -67,7 +65,7 @@ Used for imgui related nexus.engine.events
          */
         data class Timestep(
             var deltaTime: Float,
-            var gameTime: Float
+            var gameTime: Float,
         ) : Event() {
             /*We are in seconds, to see the milliseconds, we must multiple by 1000 (1000 ms in 1 second)**/
             val milliseconds: Float get() = deltaTime * 1000f
@@ -88,62 +86,62 @@ Used for imgui related nexus.engine.events
             var key: Int,
             var scancode: Int,
             var action: Int,
-            var mods: Int
+            var mods: Int,
         ) : Event()
 
         data class KeyRelease(
             val window: IWindow,
             var key: Int,
-            var mods: Int
+            var mods: Int,
         ) : Event()
 
         data class KeyPress(
             val window: IWindow,
             var key: Int,
-            var mods: Int
+            var mods: Int,
         ) : Event()
 
         data class KeyRepeat(
             val window: IWindow,
             var key: Int,
-            var mods: Int
+            var mods: Int,
         ) : Event()
 
         data class MouseEvent(
             val window: IWindow,
             var button: Int,
             var action: Int,
-            var mods: Int
+            var mods: Int,
         ) : Event()
 
         data class MousePress(
             val window: IWindow,
             var button: Int,
-            var mods: Int
+            var mods: Int,
         ) : Event()
 
         data class MouseRelease(
             val window: IWindow,
             var button: Int,
-            var mods: Int
+            var mods: Int,
         ) : Event()
 
         data class MouseRepeat(
             val window: IWindow,
             var button: Int,
-            var mods: Int
+            var mods: Int,
         ) : Event()
 
         data class MouseScroll(
             val window: IWindow,
             var xOffset: Float,
-            var yOffset: Float
+            var yOffset: Float,
         ) : Event()
 
         data class MouseMove(
             val window: IWindow,
             var x: Float,
-            var y: Float
+            var y: Float,
         ) : Event()
     }
 

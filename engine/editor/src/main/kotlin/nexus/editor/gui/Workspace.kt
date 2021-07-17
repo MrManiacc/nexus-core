@@ -2,7 +2,7 @@ package nexus.editor.gui
 
 import imgui.ImGui
 import nexus.editor.gui.container.MutableContainer
-import nexus.editor.gui.impl.NodeEmpty
+import nexus.editor.gui.impl.ElementEmpty
 
 /**
  * This is basically the editor's equivalent of an imgui dockpace. It uses various things from the engine
@@ -23,14 +23,19 @@ interface Workspace : MutableContainer {
     /**
      * This is used for rendering the menuBar at the top of the window. If it's empty we won't render it
      */
-    val menuBar: Node
-        get() = NodeEmpty
+    val menuBar: Element get() = ElementEmpty
 
     /**
      * THis is used to recreate/initialize the dockspace. This will use imgui's internal dockspace builder system
      * to create a infomative easy to use api without the need of having to work with imgui directly
      */
     fun invalidateDockspace()
+
+    /**
+     * This gets the selected node. This will
+     */
+    val activePanel: Element get() = ElementEmpty
+
 
     /**
      * This is used for rendering our children. This should be overriden to specify any dockspace specific settings.

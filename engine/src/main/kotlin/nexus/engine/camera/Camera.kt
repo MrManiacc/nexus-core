@@ -15,8 +15,11 @@ abstract class Camera<C>(
     position: Vec3 = Vec3(),
     rotation: Vec3 = Vec3(),
     var moveSpeed: Float = 1f,
-    var lookSpeed: Float = 100f
+    var lookSpeed: Float = 100f,
 ) : Transform(position, rotation, Vec3()) {
+    /**
+     * This is the projection of the camera.
+     */
     abstract var projectionMatrix: Matrix4f
 
     /*Used as a buffer for the view matrix**/
@@ -60,7 +63,7 @@ abstract class Camera<C>(
     /*This should set the float at the given index*/
     override fun set(
         component: Comp,
-        value: Float
+        value: Float,
     ) {
         when (component) {
             X -> this.position.x = value

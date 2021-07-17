@@ -2,6 +2,7 @@ package nexus.engine.editor.wrapper
 
 import imgui.*
 import imgui.extension.imguizmo.ImGuizmo
+import imgui.extension.imnodes.ImNodes
 import imgui.extension.nodeditor.NodeEditor
 import imgui.extension.nodeditor.NodeEditorContext
 import imgui.flag.ImGuiCol
@@ -11,9 +12,9 @@ import imgui.gl3.ImGuiImplGl3
 import imgui.glfw.ImGuiImplGlfw
 import imgui.type.ImInt
 import nexus.editor.gui.theme.Colors
-import nexus.engine.glfw.IWindow
+import nexus.engine.window.IWindow
 import nexus.engine.math.Vec4
-import nexus.engine.scene.RenderScene
+import nexus.engine.render.RenderScene
 import nexus.plugins.opengl.GLRenderAPI
 import org.lwjgl.glfw.GLFW
 import imgui.internal.ImGui as ImGuiInternal
@@ -68,6 +69,7 @@ class DebugRenderAPI(
      */
     private fun initImGui() {
         ImGui.createContext();
+        ImNodes.createContext()
         setupStyle(ImGui.getStyle())
         val io = ImGui.getIO();
         io.iniFilename = null
@@ -251,6 +253,7 @@ class DebugRenderAPI(
 
     /*Called upon unloading of the given renderAPI **/
     override fun dispose() {
+        ImNodes.destroyContext()
         ImGui.destroyContext()
         imGuiGlfw.dispose()
         imGuiGl3.dispose()

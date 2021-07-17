@@ -3,13 +3,15 @@ package nexus.editor.gui.core.widgets
 import imgui.ImColor
 import imgui.ImGui
 import imgui.flag.ImGuiCol
+import imgui.flag.ImGuiStyleVar
 import nexus.editor.gui.Drawable
-import nexus.editor.gui.Node
 import nexus.editor.gui.Transformable
-import nexus.editor.gui.icons.Icon
-import nexus.editor.gui.icons.Icons
-import nexus.editor.gui.internal.ID
+import nexus.editor.gui.assets.Icon
+import nexus.editor.gui.assets.Icons
+import nexus.editor.gui.impl.BaseElement
 import nexus.editor.gui.internal.WindowFlag
+import nexus.engine.math.MathDSL.Extensions.by
+import nexus.engine.math.Vec2
 
 /**
  * This is used for creating a file widget
@@ -36,16 +38,24 @@ class AssetWidget(
      * This is used for when we hover over the button
      */
     activeColor: String = "#485182",
-) : Node, Transformable, Drawable {
+    /**
+     * This allows us to have a custom size for the button
+     */
+    val size: Vec2 = 168f by 168f,
+) : BaseElement(fileName), Transformable, Drawable {
+    /**
+     * We know we're an instance of a folder if we don't have an extension
+     */
+    val isFolder: Boolean = !fileName.contains(".")
 
     private val color: Int = ImColor.rgbToColor(color)
     private val hoverColor: Int = ImColor.rgbToColor(hoverColor)
     private val activeColor: Int = ImColor.rgbToColor(activeColor)
 
     /**
-     * This is used as a name and id. Example: testfolder/subfolder/test.png
+     * When false, this node wont be renderd in the Container node's default renderChildren method.
      */
-    override val nameId: ID = ID(fileName)
+    override val batchRender: Boolean = false
 
     /**
      * This method actually is used to render the nodes
@@ -54,10 +64,32 @@ class AssetWidget(
         ImGui.pushStyleColor(ImGuiCol.Button, this.color)
         ImGui.pushStyleColor(ImGuiCol.ButtonActive, this.activeColor)
         ImGui.pushStyleColor(ImGuiCol.ButtonHovered, this.hoverColor)
-        if (ImGui.imageButton(icon.renderId, 256f, 256f))
+        if (ImGui.imageButton(icon.renderId, size.x, size.y))
             println("clicked $displayName")
         ImGui.popStyleColor(3)
         ImGui.text("${nameId.fileName}.${nameId.fileExtension}")
+    }
+
+    override fun toString(): String {
+        return "AssetWidget(id=${displayName}, icon=$icon, color=$color, hoverColor=$hoverColor, activeColor=$activeColor, flags=$flags)"
+    }
+
+    /**
+     * This will render the asset inline instead of
+     */
+    fun renderInLine() {
+        ImGui.pushStyleVar(ImGuiStyleVar.ItemSpacing, 0f, 15f)
+        ImGui.setCursorPosY(cursorY + 5f)
+        ImGui.selectable("##${nameId.uniqueId}.${nameId.fileExtension}")
+        ImGui.sameLine()
+        ImGui.setCursorPosY(cursorY - 5f)
+        ImGui.setCursorPosX(cursorX + 5f)
+        ImGui.image(icon.renderId, 24f, 24f)
+        ImGui.popStyleVar()
+        ImGui.sameLine()
+        ImGui.setCursorPosY(cursorY + 5f)
+        ImGui.textUnformatted(nameId.fileName)
+        ImGui.setCursorPosY(cursorY - 5f)
     }
 
 
@@ -65,4 +97,6 @@ class AssetWidget(
      * This should be created from the enum values for the flags
      */
     override val flags: Int = WindowFlag.None()
+
+
 }

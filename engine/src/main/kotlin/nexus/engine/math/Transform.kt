@@ -1,12 +1,10 @@
 package nexus.engine.math
 
-import nexus.engine.math.MathDSL.Conversions.rads3
-
 import nexus.engine.comps.Position.*
 import nexus.engine.comps.Rotation.*
 import nexus.engine.comps.Scale.*
-
-import org.joml.*
+import nexus.engine.math.MathDSL.Conversions.rads3
+import org.joml.Matrix4f
 
 /**
  * This is applied to game objects for rendering. This allows translating, rotating, and scaling in a 3d nexus.engine.scene.
@@ -14,10 +12,16 @@ import org.joml.*
 open class Transform(
     val position: Vec3,
     val rotation: Vec3,
-    val scale: Vec3
+    val scale: Vec3,
 ) : IVec<Transform> {
+    /**
+     * This is the 3d representation of the matrix
+     */
     var matrix: Matrix4f = Matrix4f()
         private set
+
+    constructor(copy: Transform) : this(Vec3(copy.position), Vec3(copy.rotation), Vec3(copy.scale))
+
 
     /*This is a dynamic variable that is updated per the position, rotation and scale*/
     private fun updateMatrix() {
@@ -100,7 +104,7 @@ open class Transform(
     /*This should set the float at the given index*/
     override fun set(
         component: Comp,
-        value: Float
+        value: Float,
     ) {
         when (component) {
             X -> this.position.x = value

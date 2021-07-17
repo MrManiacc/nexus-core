@@ -8,7 +8,6 @@ import org.joml.Vector2ic
 import java.nio.ByteBuffer
 import java.nio.FloatBuffer
 import java.text.DecimalFormat
-import kotlin.reflect.KProperty
 
 /*
  * This is our implementation of a vector4f. Its based upon joml's implementation
@@ -65,6 +64,8 @@ class Vec2 : Vector2f, IVec<Vec2> {
     }
 
 
+    fun set(x: Int, y: Int) = set(x.toFloat(), y.toFloat())
+
     /* This should get the component*/
     override operator fun get(component: Comp): Float? =
         when (component.idx) {
@@ -90,4 +91,7 @@ class Vec2 : Vector2f, IVec<Vec2> {
 
     override fun toString(): String = super.toString(DecimalFormat.getInstance())
 
+    companion object {
+        val Zero: Vec2 = Vec2(0, 0)
+    }
 }

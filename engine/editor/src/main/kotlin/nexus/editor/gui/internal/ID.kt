@@ -1,10 +1,12 @@
 package nexus.editor.gui.internal
 
+import java.util.*
+
 /**
  * This is used to uniquely identify the name of a ui element
  */
-@JvmInline
-value class ID(val id: String) {
+data class ID(val id: String) {
+    val uniqueId: String = getUniqueId(this)
 
     /**
      * This attempts to get the name aka the part after the last period
@@ -50,4 +52,21 @@ value class ID(val id: String) {
      * This should ruturn out the id, and all of it's information.
      */
     override fun toString(): String = "ID(group=$group, name=$name, id=$id, windowID=$windowID)"
+
+    /**
+     * This will keep track of the id's making sure to allow for uniqueness if possible
+     */
+    companion object {
+        private val ids = HashSet<String>()
+        internal fun getUniqueId(id: ID): String {
+            if (ids.contains(id.id)) {
+                val newId = "${id.id}##${UUID.randomUUID()}"
+                ids.add(newId)
+                return newId
+            }
+            ids.add(id.id)
+            return id.id
+        }
+    }
+
 }

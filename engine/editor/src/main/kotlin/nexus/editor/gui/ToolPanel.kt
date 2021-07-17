@@ -19,5 +19,27 @@ interface ToolPanel : MutableContainer, Dockable {
      */
     override val sizeRatio: Float
 
+    /**
+     * This should return true only when the tool window has im gui's focus.
+     * this is to be used for input related activies
+     */
+    val isFocused: Boolean
+
+
+    /**
+     * This should return true only when the tool window has im gui's focus.
+     * this is to be used for input related activies
+     */
+    val isHovered: Boolean
+
+    /**
+     * This should be true when the window is actually visble to the user
+     */
+    val isAppearing: Boolean
+
+    /**
+     * This should be true when the window is docked within another window
+     */
+    val isDocked: Boolean
 
 }

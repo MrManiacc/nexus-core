@@ -12,10 +12,11 @@ nexus {
         module(":engine")
         module(":plugins:opengl")
         module(":plugins:glfw")
+        module(":engine:registry")
         module(":engine:assets")
-        module(":engine:extension")
-
     }
+
+
 
     extend(project(":engine"), "core", "lwjgl", "imgui")
 }

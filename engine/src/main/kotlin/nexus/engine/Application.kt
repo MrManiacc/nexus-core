@@ -10,13 +10,13 @@ import nexus.engine.events.Events.App.Initialized
 import nexus.engine.events.Events.App.Timestep
 import nexus.engine.events.IBus
 import nexus.engine.events.IEvent
-import nexus.engine.glfw.IWindow
 import nexus.engine.input.IInput
 import nexus.engine.layer.LayerStack
 import nexus.engine.render.RenderAPI
+import nexus.engine.render.RenderScene
 import nexus.engine.render.framebuffer.Framebuffer
-import nexus.engine.scene.RenderScene
-import nexus.engine.service.ServiceManager
+import nexus.engine.scene.Scene
+import nexus.engine.window.IWindow
 
 /**
  * This is the main entry for the marx engine. It
@@ -34,57 +34,32 @@ abstract class Application<API : RenderAPI>() : IBus, LayerStack {
     abstract var controller: CameraController<API>
     abstract val viewport: Framebuffer
 
-
     /*This will get the nexus.engine.render api for the specified [rendererType]**/
     abstract val renderAPI: API
 
     /*This is the root nexus.engine.scene for the application**/
-    abstract val scene: RenderScene
-
-    override fun subscribe(listener: Any) = eventbus.subscribe(listener)
-
-
-    override fun <T : IEvent> publish(event: T) {
-        if (event is Event)
-            for (layerId in size - 1 downTo 0) {
-                val layer = layers[layerId]
-                layer.onEvent(event)
-                if (event.isHandled) return
-            }
-        eventbus.publish(event)
-    }
-
-    override fun <T : IEvent> publishAsync(event: T) {
-        if (event is Event)
-            for (layerId in size - 1 downTo 0) {
-                val layer = layers[layerId]
-                layer.onEvent(event)
-                if (event.isHandled) return
-            }
-        eventbus.publishAsync(event)
-    }
+    abstract val renderScene: RenderScene
 
     /**
-     * Called upon updating of the game
+     * This is used to render the scene
      */
-    open fun onUpdate(event: Timestep) {
-        controller.process(this)
-        for (layerId in size - 1 downTo 0) {
-            val layer = layers[layerId]
-            layer.onUpdate(event)
-        }
-        renderAPI.command.swap()
-        renderAPI.command.poll()
+    abstract var scene: Scene
+        protected set
+
+
+    /**
+     * This is used to register our core systems privately
+     */
+    private fun initialize() {
+        
     }
 
-//    @Subscribe
-//    fun onResize(event: Resize) =
-//        renderAPI.command.viewport(event.width to event.height, 0 to 0)
 
     /**
      * This is called upon the start of the application
      */
     open fun start() {
+        initialize()
         subscribe(controller)
         instance = this
         subscribe(input)
@@ -95,6 +70,20 @@ abstract class Application<API : RenderAPI>() : IBus, LayerStack {
         renderAPI.init()
         update()
         destroy()
+    }
+
+    /**
+     * Called upon updating of the game
+     */
+    open fun onUpdate(event: Timestep) {
+        scene.process(event.deltaTime)
+        controller.process(this)
+        for (layerId in size - 1 downTo 0) {
+            val layer = layers[layerId]
+            layer.onUpdate(event)
+        }
+        renderAPI.command.swap()
+        renderAPI.command.poll()
     }
 
     /**
@@ -123,8 +112,28 @@ abstract class Application<API : RenderAPI>() : IBus, LayerStack {
         isRunning = false
     }
 
-//    @Subscribe
-//    open fun destroy(event: Window.Destroy) = renderAPI.dispose()
+    override fun subscribe(listener: Any) = eventbus.subscribe(listener)
+
+    override fun <T : IEvent> publish(event: T) {
+        if (event is Event)
+            for (layerId in size - 1 downTo 0) {
+                val layer = layers[layerId]
+                layer.onEvent(event)
+                if (event.isHandled) return
+            }
+        eventbus.publish(event)
+    }
+
+    override fun <T : IEvent> publishAsync(event: T) {
+        if (event is Event)
+            for (layerId in size - 1 downTo 0) {
+                val layer = layers[layerId]
+                layer.onEvent(event)
+                if (event.isHandled) return
+            }
+        eventbus.publishAsync(event)
+    }
+
 
     override fun shutdown() = eventbus.shutdown()
 

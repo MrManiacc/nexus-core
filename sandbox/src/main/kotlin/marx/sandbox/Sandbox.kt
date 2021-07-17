@@ -14,14 +14,14 @@ import nexus.engine.editor.layer.LayerEditor
 import nexus.engine.editor.wrapper.DebugRenderAPI
 import nexus.engine.events.Events.Input.KeyPress
 import nexus.engine.events.Events.Window.Initialized
-import nexus.engine.glfw.IWindow
+import nexus.engine.window.IWindow
 import nexus.engine.input.IInput
 import nexus.engine.layer.Layer
+import nexus.engine.render.RenderScene
 import nexus.engine.render.Renderer
 import nexus.engine.render.framebuffer.Framebuffer
 import nexus.engine.render.framebuffer.FramebufferFormat
 import nexus.engine.render.framebuffer.FramebufferSpecification
-import nexus.engine.scene.RenderScene
 import nexus.plugins.glfw.GlfwInput
 import nexus.plugins.glfw.GlfwWindow
 import nexus.plugins.opengl.GLFramebuffer
@@ -48,7 +48,7 @@ object Sandbox : Application<GLRenderAPI>() {
 
     /*==================Scene==================**/
     val debugScene: RenderScene = GLScene(DebugRenderAPI::class)
-    override val scene: RenderScene = GLScene(GLRenderAPI::class)
+    override val renderScene: RenderScene = GLScene(GLRenderAPI::class)
     override val viewport: Framebuffer = GLFramebuffer(
         FramebufferSpecification(
             1280, 720, format = FramebufferFormat(
@@ -58,7 +58,7 @@ object Sandbox : Application<GLRenderAPI>() {
     )
 
     /*==================Render==================**/
-    override val renderAPI: GLRenderAPI = GLRenderAPI(window, scene).apply(Renderer::register)
+    override val renderAPI: GLRenderAPI = GLRenderAPI(window, renderScene).apply(Renderer::register)
     private val debugAPI: DebugRenderAPI = DebugRenderAPI(window, debugScene).apply(Renderer::register)
     private val editorLayer: Layer<DebugRenderAPI> = LayerEditor(this)
     private val debugLayer: Layer<DebugRenderAPI> = LayerDebug(this)
@@ -68,6 +68,7 @@ object Sandbox : Application<GLRenderAPI>() {
 
     /*We must subscribe anything important here. In the future any entity systems number would be subscribed here*/
     init {
+        subscribe(editorLayer)
         subscribe(debugAPI)
         subscribe(window)
         subscribe(this)

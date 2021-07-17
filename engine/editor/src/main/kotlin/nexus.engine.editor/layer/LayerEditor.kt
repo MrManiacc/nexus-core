@@ -1,16 +1,16 @@
 package nexus.engine.editor.layer
 
+import dorkbox.messageBus.annotations.Subscribe
 import imgui.ImGui
 import nexus.editor.gui.Workspace
-import nexus.editor.gui.core.panels.AssetBrowserPanel
-import nexus.editor.gui.core.panels.PropertiesPanel
-import nexus.editor.gui.core.panels.ScenePanel
-import nexus.editor.gui.core.panels.ViewportPanel
-import nexus.editor.gui.impl.DockspaceNode
+import nexus.editor.gui.core.panels.*
+import nexus.editor.gui.impl.DockspaceElement
 import nexus.engine.Application
 import nexus.engine.editor.wrapper.DebugRenderAPI
+import nexus.engine.events.Events
 import nexus.engine.events.Events.App.Timestep
 import nexus.engine.layer.Layer
+import java.nio.file.Path
 
 /**
  * This is the main layer for rendering the editor. This is used for handling all of the boilerplate editor
@@ -18,12 +18,15 @@ import nexus.engine.layer.Layer
  * This is the core for all gui actives within the editor.
  */
 class LayerEditor(app: Application<*>) : Layer<DebugRenderAPI>(app, DebugRenderAPI::class) {
-    private val workspace: Workspace = DockspaceNode(
+
+    private val workspace: Workspace = DockspaceElement(
+        app,
         id = "nexus.engine.dockspace",
     ).apply {
-        add(AssetBrowserPanel(app))
+        add(ContentPanel(app, Path.of(".")))
         add(ScenePanel(app))
         add(PropertiesPanel(app))
+        add(NodeGraphPanel(app))
         add(ViewportPanel(app))
     }
 
@@ -35,4 +38,14 @@ class LayerEditor(app: Application<*>) : Layer<DebugRenderAPI>(app, DebugRenderA
             workspace.render()
         }
     }
+
+
+    /**
+     * For some reason imgui isn't recieving scroll input, so we manually pass it here
+     */
+    @Subscribe fun onScroll(scroll: Events.Input.MouseScroll) {
+        ImGui.getIO().mouseWheel = scroll.yOffset
+        ImGui.getIO().mouseWheelH = scroll.xOffset
+    }
+
 }

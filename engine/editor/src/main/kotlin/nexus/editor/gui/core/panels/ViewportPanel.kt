@@ -1,10 +1,10 @@
 package nexus.editor.gui.core.panels
 
+import dorkbox.messageBus.annotations.Subscribe
 import imgui.ImGui
-import nexus.editor.gui.impl.BaseToolPanel
+import nexus.editor.gui.impl.AbstractToolPanel
 import nexus.editor.gui.internal.Anchor
 import nexus.editor.gui.internal.DockFlag
-import nexus.editor.gui.internal.WindowFlag
 import nexus.editor.gui.theme.PanelTheme
 import nexus.engine.Application
 import nexus.engine.events.Events
@@ -16,12 +16,15 @@ import nexus.engine.render.framebuffer.FramebufferFormat
 /**
  * This panel is used for the main viewport
  */
-class ViewportPanel<API : RenderAPI>(val app: Application<API>) : BaseToolPanel(
+class ViewportPanel<API : RenderAPI>(val app: Application<API>) : AbstractToolPanel(
     "nexus.editor.viewport", Anchor.Center,
-    flags = arrayOf(WindowFlag.NoCollapse, WindowFlag.NoBringToFrontOnFocus),
-    dockFlags = arrayOf(DockFlag.AutoHideTabBar)
+    flags = arrayOf(),
+    dockFlags = arrayOf(DockFlag.PassThroughCentralNode)
 ) {
-    private val viewportSize: Vec2 = 1920 by 1080f
+    private val viewportSize: Vec2 = -1 by -1
+    init{
+        app.subscribe(this)
+    }
 
     /**
      * This allow for the user to customize the window before it's creation
@@ -35,15 +38,20 @@ class ViewportPanel<API : RenderAPI>(val app: Application<API>) : BaseToolPanel(
      * This should render the content of the tool window.
      */
     override fun renderContent() {
-
         //This is used to render our actual viewport panel
         val size = ImGui.getContentRegionAvail()
         if (size.x != viewportSize.x || size.y != viewportSize.y) {
-            viewportSize.set(size.x, size.y)
             app.publish(Events.Camera.Resize(size.x.toInt(), size.y.toInt()))
         }
+        viewportSize.set(size.x, size.y)
         app.viewport[FramebufferFormat.Attachment.ColorImage]?.renderID?.let {
             ImGui.image(it, viewportSize.x, viewportSize.y)
         }
+    }
+
+
+    @Subscribe
+    fun onResize(event: Events.Window.Resize){
+        app.publish(Events.Camera.Resize(viewportSize.x.toInt(), viewportSize.y.toInt()))
     }
 }

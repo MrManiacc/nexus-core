@@ -2,6 +2,8 @@ package nexus.engine.editor.camera
 
 import dorkbox.messageBus.annotations.Subscribe
 import mu.KotlinLogging
+import nexus.editor.gui.core.panels.ViewportPanel
+import nexus.editor.gui.events.UIEvents
 import nexus.engine.camera.Camera
 import nexus.engine.camera.CameraController
 import nexus.engine.events.Events
@@ -19,6 +21,7 @@ class OrthoController<API : RenderAPI>(camera: OrthoCamera) : CameraController<A
     private val log: Logger = KotlinLogging.logger { }
     private var zoomLevel: Float = 5f
     private var aspect: Float = 1920f / 1080f
+    private var processInput = false
 
     /**
      * This is used to update the camera. It's pass the render scene which contains the camera for the given scene.
@@ -29,31 +32,42 @@ class OrthoController<API : RenderAPI>(camera: OrthoCamera) : CameraController<A
      */
     override fun update(dt: Timestep, input: IInput): Camera<*> = with(input) {
         val cam = super.update(dt, input)
-        with(cam) {
-            if (isKeyDown(GLFW.GLFW_KEY_D))
-                x(moveSpeed * dt.deltaTime)
-            if (isKeyDown(GLFW.GLFW_KEY_A))
-                x(-moveSpeed * dt.deltaTime)
-            if (isKeyDown(GLFW.GLFW_KEY_E))
-                roll(-lookSpeed * dt.deltaTime)
-            if (isKeyDown(GLFW.GLFW_KEY_Q))
-                roll(lookSpeed * dt.deltaTime)
-            if (isKeyDown(GLFW.GLFW_KEY_W))
-                y(-moveSpeed * dt.deltaTime)
-            if (isKeyDown(GLFW.GLFW_KEY_S))
-                y(moveSpeed * dt.deltaTime)
+        if (processInput) {
+            with(cam) {
+                if (isKeyDown(GLFW.GLFW_KEY_D))
+                    x(moveSpeed * dt.deltaTime)
+                if (isKeyDown(GLFW.GLFW_KEY_A))
+                    x(-moveSpeed * dt.deltaTime)
+                if (isKeyDown(GLFW.GLFW_KEY_E))
+                    roll(-lookSpeed * dt.deltaTime)
+                if (isKeyDown(GLFW.GLFW_KEY_Q))
+                    roll(lookSpeed * dt.deltaTime)
+                if (isKeyDown(GLFW.GLFW_KEY_W))
+                    y(-moveSpeed * dt.deltaTime)
+                if (isKeyDown(GLFW.GLFW_KEY_S))
+                    y(moveSpeed * dt.deltaTime)
+            }
         }
         return cam
+    }
+
+    @Subscribe
+    fun onWindowFocus(event: UIEvents.NodeFocusSwitched) {
+        this.processInput = event.focused is ViewportPanel<*>
     }
 
     /*This allows us to recompute our projection matrix every time our window resizes*/
     @Subscribe
     fun onScroll(event: Events.Input.MouseScroll) = with(this.camera) {
-        zoomLevel -= event.yOffset * 0.25f
-        zoomLevel = max(zoomLevel, 0.25f)
-        updateCamera(aspect, zoomLevel)
-        log.info("Zoom camera for new zoom level: $zoomLevel, event: $event")
+        if (processInput) {
+            zoomLevel -= event.yOffset * 0.25f
+            zoomLevel = max(zoomLevel, 0.25f)
+            updateCamera(aspect, zoomLevel)
+            log.info("Zoom camera for new zoom level: $zoomLevel, event: $event")
+        }
     }
+
+
 
     /*This allows us to recompute our projection matrix every time our window resizes*/
     @Subscribe
@@ -65,7 +79,9 @@ class OrthoController<API : RenderAPI>(camera: OrthoCamera) : CameraController<A
         }
     }
 
-
+    /**
+     * Updates the cameras projection
+     */
     private fun updateCamera(aspect: Float, zoom: Float) = with(this.camera) {
         projectionMatrix = projectionMatrix.identity().ortho(
             -aspect * zoom,

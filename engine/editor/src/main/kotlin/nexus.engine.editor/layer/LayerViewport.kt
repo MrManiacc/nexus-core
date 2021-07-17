@@ -1,17 +1,19 @@
 package nexus.engine.editor.layer
 
+import dorkbox.messageBus.annotations.Subscribe
 import nexus.engine.Application
 import nexus.engine.camera.CameraController
 import nexus.engine.events.Events
 import nexus.engine.layer.Layer
 import nexus.engine.math.MathDSL.Extensions.by
 import nexus.engine.math.Transform
+import nexus.engine.math.Vec2
 import nexus.engine.math.Vec3
 import nexus.engine.render.Buffer
 import nexus.engine.render.RenderAPI
-import nexus.engine.texture.TextureData
-import nexus.engine.texture.TextureInstance
-import nexus.engine.texture.TextureInstanceData
+import nexus.engine.assets.texture.TextureData
+import nexus.engine.assets.texture.TextureInstance
+import nexus.engine.assets.texture.TextureInstanceData
 import nexus.plugins.opengl.GLBuffer
 import nexus.plugins.opengl.GLShader
 import nexus.plugins.opengl.GLTexture2D
@@ -29,7 +31,7 @@ class LayerViewport<API : RenderAPI>(app: Application<API>, target: KClass<API>)
     private lateinit var textureInstance: TextureInstance
     private val shader = GLShader(app)
     private val transform: Transform = Transform(0f by 0f by 0f, Vec3(), Vec3(1f))
-
+    private val size = Vec2(-1f)
     private val quad = GLVertexArray(
         GLBuffer.GLVertexBuffer(
             floatArrayOf(
@@ -73,6 +75,13 @@ class LayerViewport<API : RenderAPI>(app: Application<API>, target: KClass<API>)
     }
 
     /**
+     * This is used for updating the viewport to match imgui window size
+     */
+    @Subscribe private fun onResize(event: Events.Camera.Resize) {
+        size.set(event.width, event.height)
+    }
+
+    /**
      * TODO: this should publish some kind of intellij plugin like event system thing where
      * all classes that wish to render right here can via some interfacing system and extension file system like the
      * intellij plugin.xml system
@@ -81,7 +90,7 @@ class LayerViewport<API : RenderAPI>(app: Application<API>, target: KClass<API>)
         app.viewport.bind()
         renderAPI.command.clear(floatArrayOf(0.1f, 0.1f, 0.1f))
         render(app.controller)
-        renderAPI.command.viewport(1920 to 1080, 0 to 0)
+        renderAPI.command.viewport(size, Vec2.Zero)
         app.viewport.unbind()
 
     }
@@ -93,7 +102,6 @@ class LayerViewport<API : RenderAPI>(app: Application<API>, target: KClass<API>)
         scene.sceneOf(controller) {
             submit(quad, shader, transform) { shader, transform ->
                 textureInstance.bind(0)
-                println(textureInstance.textureID)
                 shader.uploadTexture("u_Texture", textureInstance)
                 shader.uploadMat4(
                     "u_ModelMatrix", transform.matrix

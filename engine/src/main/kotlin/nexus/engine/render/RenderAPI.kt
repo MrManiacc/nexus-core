@@ -4,7 +4,6 @@ import nexus.engine.camera.Camera
 import nexus.engine.math.Transform
 import nexus.engine.render.framebuffer.Framebuffer
 import nexus.engine.render.framebuffer.FramebufferSpecification
-import nexus.engine.scene.RenderScene
 
 /**
  * This is the core of all of the rendering done throughout the engine.

@@ -1,6 +1,6 @@
 package nexus.engine.input
 
-import nexus.engine.glfw.IWindow
+import nexus.engine.window.IWindow
 
 
 interface IInput {

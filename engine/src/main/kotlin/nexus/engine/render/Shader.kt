@@ -1,6 +1,6 @@
 package nexus.engine.render
 
-import nexus.engine.texture.TextureInstance
+import nexus.engine.assets.texture.TextureInstance
 import org.joml.*
 
 /*

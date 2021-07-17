@@ -1,6 +1,6 @@
 package nexus.plugins.glfw
 
-import nexus.engine.glfw.IWindow
+import nexus.engine.window.IWindow
 import nexus.engine.input.IInput
 import org.lwjgl.glfw.GLFW
 

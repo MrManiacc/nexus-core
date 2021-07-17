@@ -3,7 +3,7 @@ package nexus.editor.gui
 import imgui.ImColor
 import imgui.ImDrawList
 import imgui.ImGui
-import nexus.editor.gui.icons.Icon
+import nexus.editor.gui.assets.Icon
 
 /**
  * This interface wraps around many of imgui core drawing interfaces and provides easy to use methodsl
@@ -47,4 +47,7 @@ interface Drawable : Transformable {
     fun iconCursor(x: Float, y: Float, width: Float, height: Float, icon: Icon) {
         icon(cursorX + x, cursorY + y, width, height, icon)
     }
+
+
+
 }

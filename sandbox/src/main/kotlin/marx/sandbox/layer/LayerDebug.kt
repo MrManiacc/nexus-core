@@ -1,13 +1,8 @@
 package marx.sandbox.layer
 
-import imgui.ImGui
-import imgui.ImVec2
-import imgui.flag.ImGuiCond
-import imgui.flag.ImGuiWindowFlags.*
 import marx.sandbox.Sandbox
 import mu.KotlinLogging
 import nexus.engine.Application
-import nexus.engine.editor.dsl.MarxGui
 import nexus.engine.editor.wrapper.DebugRenderAPI
 import nexus.engine.events.Event
 import nexus.engine.events.Events.App.Timestep
@@ -18,10 +13,9 @@ import nexus.engine.math.MathDSL.Extensions.by
 import nexus.engine.math.MathDSL.Extensions.via
 import nexus.engine.math.Transform
 import nexus.engine.math.Vec3
-import nexus.engine.texture.TextureData
-import nexus.engine.texture.TextureInstance
-import nexus.engine.texture.TextureInstanceData
-import nexus.engine.utils.StringUtils.format
+import nexus.engine.assets.texture.TextureData
+import nexus.engine.assets.texture.TextureInstance
+import nexus.engine.assets.texture.TextureInstanceData
 import nexus.plugins.opengl.GLShader
 import nexus.plugins.opengl.GLTexture2D
 import nexus.plugins.opengl.data.Primitives
@@ -99,58 +93,58 @@ class LayerDebug(app: Application<*>) : Layer<DebugRenderAPI>(app, DebugRenderAP
 
     /*This is called inside the nexus.engine.render frame of imgui. It's an overlay so it should be last.*/
     private fun drawGui(update: Timestep) {
-        val winPos = app.window.pos
-        val size = app.window.size
-        val xInset = 220f
-        var pos = ImVec2()
-        var scale = ImVec2()
-        val statesWidth = 200f
-
-        ImGui.setNextWindowSize(statesWidth, 0f, ImGuiCond.Always)
-        ImGui.setNextWindowPos(winPos.first + size.first - xInset, winPos.second + 20f, ImGuiCond.Once)
-        if (ImGui.begin("metrics", NoResize or NoScrollbar or NoScrollWithMouse or NoCollapse or NoDocking)) {
-            ImGui.text("delta: " + update.deltaTime.format(5))
-            ImGui.text("time: ${update.gameTime.format(3)}")
-            ImGui.text("ms: " + update.milliseconds.format(3))
-            ImGui.text("fps: ${ImGui.getIO().framerate.format(1)}")
-            pos = ImGui.getWindowPos()
-            scale = ImGui.getWindowSize()
-        }
-        ImGui.end()
-        ImGui.setNextWindowSize(statesWidth, 0f, ImGuiCond.Always)
-        ImGui.setNextWindowPos(pos.x, pos.y + scale.y + 10, ImGuiCond.Always)
-        if (ImGui.begin("states", NoResize or NoScrollbar or NoScrollWithMouse or NoCollapse or NoDocking)) {
-            ImGui.text("fullscreen[f1]: ${app.window.fullscreen}")
-            ImGui.text("vsync [f3]: ${app.window.vsync}")
-            val frame = app.window.size
-            ImGui.text("window size: ${frame.first}, ${frame.second}")
-            pos = ImGui.getWindowPos()
-            scale = ImGui.getWindowSize()
-        }
-        ImGui.end()
-        ImGui.setNextWindowSize(statesWidth, 0f, ImGuiCond.Always)
-        ImGui.setNextWindowPos(pos.x, pos.y + scale.y + 10, ImGuiCond.Always)
-        if (ImGui.begin("transforms", NoResize or NoScrollbar or NoScrollWithMouse or NoCollapse or NoDocking)) {
-            if (MarxGui.transform("transform1", transform)) {
-                log.warn("Updated transform1")
-            }
-            pos = ImGui.getWindowPos()
-            scale = ImGui.getWindowSize()
-        }
-        ImGui.end()
-
-        ImGui.setNextWindowSize(statesWidth, 0f, ImGuiCond.Always)
-        ImGui.setNextWindowPos(pos.x, pos.y + scale.y + 10, ImGuiCond.Always)
-        if (ImGui.begin(
-                "nexus/engine/camera",
-                NoResize or NoScrollbar or NoScrollWithMouse or NoCollapse or NoDocking
-            )
-        ) {
-//            if (MarxGui.camera("EditorCamera", Sandbox.editorCamera)) {
-//                log.warn("Updated nexus.engine.camera")
+//        val winPos = app.window.pos
+//        val size = app.window.size
+//        val xInset = 220f
+//        var pos = ImVec2()
+//        var scale = ImVec2()
+//        val statesWidth = 200f
+//
+//        ImGui.setNextWindowSize(statesWidth, 0f, ImGuiCond.Always)
+//        ImGui.setNextWindowPos(winPos.first + size.first - xInset, winPos.second + 20f, ImGuiCond.Once)
+//        if (ImGui.begin("metrics", NoResize or NoScrollbar or NoScrollWithMouse or NoCollapse or NoDocking)) {
+//            ImGui.text("delta: " + update.deltaTime.format(5))
+//            ImGui.text("time: ${update.gameTime.format(3)}")
+//            ImGui.text("ms: " + update.milliseconds.format(3))
+//            ImGui.text("fps: ${ImGui.getIO().framerate.format(1)}")
+//            pos = ImGui.getWindowPos()
+//            scale = ImGui.getWindowSize()
+//        }
+//        ImGui.end()
+//        ImGui.setNextWindowSize(statesWidth, 0f, ImGuiCond.Always)
+//        ImGui.setNextWindowPos(pos.x, pos.y + scale.y + 10, ImGuiCond.Always)
+//        if (ImGui.begin("states", NoResize or NoScrollbar or NoScrollWithMouse or NoCollapse or NoDocking)) {
+//            ImGui.text("fullscreen[f1]: ${app.window.fullscreen}")
+//            ImGui.text("vsync [f3]: ${app.window.vsync}")
+//            val frame = app.window.size
+//            ImGui.text("window size: ${frame.first}, ${frame.second}")
+//            pos = ImGui.getWindowPos()
+//            scale = ImGui.getWindowSize()
+//        }
+//        ImGui.end()
+//        ImGui.setNextWindowSize(statesWidth, 0f, ImGuiCond.Always)
+//        ImGui.setNextWindowPos(pos.x, pos.y + scale.y + 10, ImGuiCond.Always)
+//        if (ImGui.begin("transforms", NoResize or NoScrollbar or NoScrollWithMouse or NoCollapse or NoDocking)) {
+//            if (MarxGui.transform("transform1", transform)) {
+//                log.warn("Updated transform1")
 //            }
-        }
-        ImGui.end()
+//            pos = ImGui.getWindowPos()
+//            scale = ImGui.getWindowSize()
+//        }
+//        ImGui.end()
+//
+//        ImGui.setNextWindowSize(statesWidth, 0f, ImGuiCond.Always)
+//        ImGui.setNextWindowPos(pos.x, pos.y + scale.y + 10, ImGuiCond.Always)
+//        if (ImGui.begin(
+//                "nexus/engine/camera",
+//                NoResize or NoScrollbar or NoScrollWithMouse or NoCollapse or NoDocking
+//            )
+//        ) {
+////            if (MarxGui.camera("EditorCamera", Sandbox.editorCamera)) {
+////                log.warn("Updated nexus.engine.camera")
+////            }
+//        }
+//        ImGui.end()
 
 
     }

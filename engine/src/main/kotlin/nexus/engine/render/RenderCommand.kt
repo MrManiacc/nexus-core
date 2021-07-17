@@ -1,11 +1,13 @@
 package nexus.engine.render
 
+import nexus.engine.math.Vec2
+
 interface RenderCommand {
 
     /*
 Allows for viewport resizing
      */
-    fun viewport(size: Pair<Int, Int>, pos: Pair<Int, Int>) = Unit
+    fun viewport(size: Vec2, pos: Vec2) = Unit
 
     /*
 Clear the screen with the given color
