@@ -1,7 +1,7 @@
 package nexus.engine.assets
 
 import com.google.common.base.Preconditions
-import nexus.engine.resource.ResourceUrn
+import nexus.engine.module.naming.ResourceUrn
 import java.util.*
 import javax.annotation.concurrent.ThreadSafe
 
