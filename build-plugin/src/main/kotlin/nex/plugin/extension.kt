@@ -130,6 +130,7 @@ data class ConfigurationManager(
     val dependencyGroups: MutableMap<String, Configuration> = HashMap()
 ) {
     operator fun get(key: String): Configuration = dependencyGroups.computeIfAbsent(key) { Configuration(project, key) }
+
     operator fun set(key: String, value: Configuration) {
         dependencyGroups[key] = value
     }
@@ -179,6 +180,7 @@ class Extends(private val extension: PluginExtension) {
         ext.configurationManager.ifPresent(configurationName) {
             it.addTo(extension)
         }
+
     }
 
     /**
@@ -191,6 +193,7 @@ class Extends(private val extension: PluginExtension) {
         val extension =
             project.extensions["nexus"]
         if (extension !is PluginExtension) error("Failed to find the nexus extension for project: ${project.name}")
+
         return extension
     }
 }

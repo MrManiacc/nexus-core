@@ -1,14 +1,15 @@
 package nexus.engine.assets.format
 
-import nexus.engine.resource.InvalidAssetFilenameException
-import nexus.engine.resource.Name
+import nexus.engine.module.ex.InvalidAssetFilenameException
+import nexus.engine.module.Name
+import nexus.engine.module.resources.FileReference
 import java.util.function.Predicate
 
 /**
  * Common base interface for all file formats.  A file format is used to load one or more files and either create or modify an
  * [AssetData][org.terasology.gestalt.assets.AssetData].
  *
- * @author Immortius
+ * 
  */
 interface FileFormat {
     /**

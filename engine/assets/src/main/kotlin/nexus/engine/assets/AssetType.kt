@@ -1,14 +1,18 @@
+@file:Suppress("UNCHECKED_CAST")
+
 package nexus.engine.assets
 
 import com.google.common.base.Function
 import com.google.common.base.Preconditions
 import com.google.common.collect.*
 import mu.KotlinLogging
-import nexus.engine.reflection.getTypeParameterBindingForInheritedClass
-import nexus.engine.resource.Name
+import nexus.engine.assets.format.AssetFileFormat
+import nexus.engine.assets.format.producer.AssetDataProducer
+import nexus.engine.assets.format.producer.RedirectableAssetDataProducer
+import nexus.engine.module.Name
+import nexus.engine.module.utilities.getTypeParameterBindingForInheritedClass
 import nexus.engine.resource.ResourceUrn
 import nexus.engine.resource.urn
-import org.slf4j.Logger
 import java.io.Closeable
 import java.io.IOException
 import java.lang.ref.PhantomReference
@@ -36,11 +40,13 @@ import kotlin.reflect.full.createInstance
  */
 class AssetType<T : Asset<U>, U : AssetData>(
     val assetClass: KClass<T>,
-    val factoryClass: KClass<AssetFactory<T, U>>,
+    val factoryClass: KClass<out AssetFactory<T, U>>,
 ) : Closeable {
-    private val factory: AssetFactory<T, U> = factoryClass.createInstance()
-    private val logger: Logger = KotlinLogging.logger { }
     val assetDataType: KClass<U>
+
+    private val logger = KotlinLogging.logger { }
+    private var format: AssetFileFormat<U>? = null
+    private val factory: AssetFactory<T, U> = factoryClass.createInstance()
     private val producers: MutableList<AssetDataProducer<U>> = Lists.newCopyOnWriteArrayList()
     private val loadedAssets: MutableMap<ResourceUrn, T> = MapMaker().concurrencyLevel(4).makeMap()
     private val instanceAssets: ListMultimap<ResourceUrn, WeakReference<T>> = Multimaps.synchronizedListMultimap(
@@ -50,20 +56,64 @@ class AssetType<T : Asset<U>, U : AssetData>(
     private val locks: MutableMap<ResourceUrn, ResourceLock> =
         MapMaker().concurrencyLevel(1).makeMap()
 
-    private val references: MutableSet<AssetReference<out Asset<U>?>> = Sets.newConcurrentHashSet()
+    private val references: MutableSet<AssetReference<out Asset<U>>> = Sets.newConcurrentHashSet()
+
     private val disposalQueue = ReferenceQueue<T>()
 
-    @Volatile
-    private var closed = false
+    /**
+     * This use used to keep track of the state of the asset types. When closed all of the assets should have been
+     * disposed of
+     */
+    @Volatile var isClosed = false
+        private set
 
-    @Volatile
-    var resolutionStrategy: ResolutionStrategy = ResolutionStrategy { modules, context ->
+    /**
+     * This is used for asset module resolution
+     */
+    @Volatile var resolutionStrategy: ResolutionStrategy = ResolutionStrategy { modules, context ->
         if (modules.contains(context)) {
             ImmutableSet.of(context)
         } else {
             modules.toMutableSet()
         }
     }
+
+    /**
+     * This allows for generic creation of the asset type. This is needed in kotlin for reflectivly creating
+     * an asset instance. This has potential to go very wrong as there is a chance that the asset types
+     * may not relate to one another. Its up to the user to ensure the the factories and format match the
+     * Asset/AssetData class type pair.
+     */
+    constructor(
+        assetClass: KClass<out Asset<out AssetData>>,
+        factoryClass: KClass<out AssetFactory<out Asset<out AssetData>, out AssetData>>,
+        formatClass: KClass<out AssetFileFormat<out AssetData>>,
+    ) : this(assetClass as KClass<T>, factoryClass as KClass<out AssetFactory<T, U>>) {
+        this.format = formatClass.createInstance() as AssetFileFormat<U>
+    }
+
+
+    /**
+     * Adds an AssetDataProducer for generating assets of for this AssetType
+     *
+     * @param producer The producer to add
+     */
+    @Synchronized fun addProducer(producer: AssetDataProducer<U>) {
+        if (!isClosed) {
+            this.producers.add(producer)
+            logger.debug { "Added producer: ${producer::class.qualifiedName}" }
+        }
+    }
+
+
+    /**
+     * @param producer The producer to remove;
+     * @return Whether the producer was removed
+     */
+    @Synchronized fun removeProducer(producer: AssetDataProducer<U>): Boolean {
+        return producers.remove(producer)
+    }
+
 
     /**
      * Closes this stream and releases any system resources associated
@@ -79,13 +129,15 @@ class AssetType<T : Asset<U>, U : AssetData>(
      *
      * @throws IOException if an I/O error occurs
      */
+    @Synchronized
     override fun close() {
-        if (!closed) {
-            closed = true
+        if (!isClosed) {
+            isClosed = true
             disposeAll()
             clearProducers()
         }
     }
+
 
     /**
      * Refreshes the AssetType. All loaded assets that are provided by the producers are reloaded, all other assets are disposed. Asset instances are reloaded with
@@ -96,7 +148,7 @@ class AssetType<T : Asset<U>, U : AssetData>(
      *
      */
     fun refresh() {
-        if (!closed) {
+        if (!isClosed) {
             for (asset in loadedAssets.values) {
                 if (followRedirects(asset.urn) != asset.urn || !reloadFromProducers(asset)) {
                     asset.dispose()
@@ -118,7 +170,7 @@ class AssetType<T : Asset<U>, U : AssetData>(
     private fun reloadFromProducers(asset: T): Boolean {
         try {
             for (producer in producers) {
-                val data = producer.getAssetData(asset.urn)
+                val data = producer.produceData(asset.urn)
                 if (data.isPresent) {
                     asset.reload(data.get())
                     for (assetInstanceRef in instanceAssets[asset.urn.instanceUrn]) {
@@ -146,7 +198,8 @@ class AssetType<T : Asset<U>, U : AssetData>(
         do {
             lastUrn = finalUrn
             for (producer in producers) {
-                finalUrn = producer.redirect(finalUrn)
+                if (producer is RedirectableAssetDataProducer<*>)
+                    finalUrn = producer.redirect(finalUrn)
             }
         } while (!lastUrn.equals(finalUrn))
         return finalUrn
@@ -186,7 +239,7 @@ class AssetType<T : Asset<U>, U : AssetData>(
         try {
             return AccessController.doPrivileged(PrivilegedExceptionAction {
                 for (producer in producers) {
-                    val data = producer.getAssetData(redirectUrn)
+                    val data = producer.produceData(redirectUrn)
                     if (data.isPresent) {
                         return@PrivilegedExceptionAction Optional.of(loadAsset(redirectUrn, data.get()))
                     }
@@ -272,7 +325,8 @@ class AssetType<T : Asset<U>, U : AssetData>(
         }
         var possibleModules: MutableSet<Name> = Sets.newLinkedHashSet()
         for (producer in producers) {
-            possibleModules.addAll(producer.getModulesProviding(resourceName))
+//            if (producer is AssetDataProducer.RedirectableAssetDataProducer<*>)
+//                possibleModules.addAll(producer.getModulesProviding(resourceName))
         }
         if (!moduleContext.isEmpty) {
             possibleModules = resolutionStrategy.resolve(possibleModules, moduleContext)
@@ -285,10 +339,9 @@ class AssetType<T : Asset<U>, U : AssetData>(
     }
 
 
-    private fun clearProducers() {
-        producers.clear()
-    }
-
+    /**
+     * This will dispose of all of the loaded assets and asset instances
+     */
     private fun disposeAll() {
         loadedAssets.values.forEach { it.dispose() }
         for (assetRef in ImmutableList.copyOf(instanceAssets.values())) {
@@ -306,6 +359,9 @@ class AssetType<T : Asset<U>, U : AssetData>(
         }
     }
 
+    /**
+     * Disposes any assets queued for disposal. This occurs if an asset is no longer referenced by anything.
+     */
     fun processDisposal() {
         var ref: Reference<out Asset<U>?>? = disposalQueue.poll()
         while (ref != null) {
@@ -322,13 +378,13 @@ class AssetType<T : Asset<U>, U : AssetData>(
      * @param asset The asset that was created
      */
     @Synchronized fun registerAsset(asset: Asset<U>, disposer: DisposalHook) {
-        check(!closed) { "Cannot create asset for disposed asset type: $assetClass" }
+        check(!isClosed) { "Cannot create asset for disposed asset type: $assetClass" }
         if (asset.urn.isInstance) {
             instanceAssets.put(asset.urn, WeakReference(assetClass.java.cast(asset)))
         } else {
             loadedAssets[asset.urn] = assetClass.java.cast(asset)
         }
-        references.add(AssetReference<T>(asset as T, disposalQueue, disposer!!))
+        references.add(AssetReference<T>(asset as T, disposalQueue, disposer))
     }
 
     /**
@@ -363,8 +419,8 @@ class AssetType<T : Asset<U>, U : AssetData>(
             try {
                 return AccessController.doPrivileged(PrivilegedExceptionAction {
                     for (producer in producers) {
-                        val data: Optional<U> = producer.getAssetData(asset.urn)
-                        if (data.isPresent()) {
+                        val data: Optional<U> = producer.produceData(asset.urn)
+                        if (data.isPresent) {
                             return@PrivilegedExceptionAction Optional.of(loadAsset(asset.urn.instanceUrn, data.get()))
                         }
                     }
@@ -402,7 +458,7 @@ class AssetType<T : Asset<U>, U : AssetData>(
                 }
                 try {
                     lock.lock()
-                    if (!closed) {
+                    if (!isClosed) {
                         asset = loadedAssets[urn]
                         if (asset == null) {
                             asset = factory.build(urn, this, data)
@@ -435,16 +491,14 @@ class AssetType<T : Asset<U>, U : AssetData>(
     /**
      * @return A set of the urns of all the loaded assets.
      */
-    fun getLoadedAssetUrns(): Set<ResourceUrn> {
-        return ImmutableSet.copyOf(loadedAssets.keys)
-    }
+    fun getLoadedAssetUrns(): Set<ResourceUrn> = ImmutableSet.copyOf(loadedAssets.keys)
+
 
     /**
      * @return A list of all the loaded assets.
      */
-    fun getLoadedAssets(): Set<T> {
-        return ImmutableSet.copyOf(loadedAssets.values)
-    }
+    fun getLoadedAssets(): Set<T> = ImmutableSet.copyOf(loadedAssets.values)
+
 
     /**
      * @return A set of the urns of all the loaded assets and all the assets available from producers
@@ -452,11 +506,15 @@ class AssetType<T : Asset<U>, U : AssetData>(
     fun getAvailableAssetUrns(): Set<ResourceUrn> {
         val availableAssets: MutableSet<ResourceUrn> = Sets.newLinkedHashSet(getLoadedAssetUrns())
         for (producer in producers) {
-            availableAssets.addAll(producer.availableAssetUrns)
+            if (producer is RedirectableAssetDataProducer<*>)
+                availableAssets.addAll(producer.availableAssetUrns)
         }
         return availableAssets
     }
 
+    /**
+     * This isu sed for cleaning up the asset instance's and loaded types after their deletion
+     */
     internal fun onAssetDisposed(asset: Asset<U>) {
         if (asset.urn.isInstance) {
             instanceAssets[asset.urn].remove(WeakReference(assetClass.java.cast(asset)))
@@ -464,6 +522,9 @@ class AssetType<T : Asset<U>, U : AssetData>(
             loadedAssets.remove(asset.urn)
         }
     }
+
+    private fun clearProducers() =
+        producers.clear()
 
     init {
         val assetDataType = getTypeParameterBindingForInheritedClass(assetClass.java, Asset::class, 0)

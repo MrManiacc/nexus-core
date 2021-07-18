@@ -13,5 +13,4 @@ nexus {
     }
 
     extend(project(":engine"), "core", "lwjgl")
-    extend("opengl")
 }

@@ -1,6 +1,7 @@
 package nexus.engine.assets.format
 
 import com.google.common.base.Charsets
+import nexus.engine.module.resources.FileReference
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStream
@@ -21,7 +22,7 @@ import javax.annotation.concurrent.Immutable
  * Immutable.
  * </p>
  *
- * @author Immortius
+ * 
  */
 @Immutable class AssetDataFile(
     /**

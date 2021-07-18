@@ -3,7 +3,7 @@ package marx.sandbox.layer
 import marx.sandbox.Sandbox
 import mu.KotlinLogging
 import nexus.engine.Application
-import nexus.engine.editor.wrapper.DebugRenderAPI
+import nexus.editor.wrapper.DebugRenderAPI
 import nexus.engine.events.Event
 import nexus.engine.events.Events.App.Timestep
 import nexus.engine.events.Events.Input.KeyPress

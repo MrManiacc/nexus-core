@@ -6,15 +6,14 @@ import dorkbox.messageBus.annotations.Subscribe
 import marx.sandbox.layer.LayerDebug
 import marx.sandbox.layer.LayerSimulate
 import mu.KotlinLogging
+import nexus.editor.camera.OrthoCamera
+import nexus.editor.camera.OrthoController
+import nexus.editor.layer.LayerEditor
+import nexus.editor.wrapper.DebugRenderAPI
 import nexus.engine.Application
 import nexus.engine.camera.CameraController
-import nexus.engine.editor.camera.OrthoCamera
-import nexus.engine.editor.camera.OrthoController
-import nexus.engine.editor.layer.LayerEditor
-import nexus.engine.editor.wrapper.DebugRenderAPI
 import nexus.engine.events.Events.Input.KeyPress
 import nexus.engine.events.Events.Window.Initialized
-import nexus.engine.window.IWindow
 import nexus.engine.input.IInput
 import nexus.engine.layer.Layer
 import nexus.engine.render.RenderScene
@@ -22,6 +21,9 @@ import nexus.engine.render.Renderer
 import nexus.engine.render.framebuffer.Framebuffer
 import nexus.engine.render.framebuffer.FramebufferFormat
 import nexus.engine.render.framebuffer.FramebufferSpecification
+import nexus.engine.scene.Scene
+import nexus.engine.scene.internal.ArtemisScene
+import nexus.engine.window.IWindow
 import nexus.plugins.glfw.GlfwInput
 import nexus.plugins.glfw.GlfwWindow
 import nexus.plugins.opengl.GLFramebuffer
@@ -115,6 +117,11 @@ object Sandbox : Application<GLRenderAPI>() {
         debugAPI.dispose()
         renderAPI.dispose()
     }
+
+    /**
+     * This is used to render the scene
+     */
+    override var scene: Scene = ArtemisScene()
 
 
 }

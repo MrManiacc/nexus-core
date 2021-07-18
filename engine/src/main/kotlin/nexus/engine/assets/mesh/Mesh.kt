@@ -32,8 +32,6 @@ class Mesh(resourceUrn: ResourceUrn, assetType: AssetType<Mesh, MeshData>) : Ass
      * @throws org.terasology.gestalt.assets.exceptions.InvalidAssetDataException If the asset data is invalid or cannot be loaded
      */
     override fun doReload(data: MeshData) {
-
-
     }
 
     /**

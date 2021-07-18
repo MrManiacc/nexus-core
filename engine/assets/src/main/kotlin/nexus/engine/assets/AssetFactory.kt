@@ -9,7 +9,7 @@ import nexus.engine.resource.ResourceUrn
  * straight through. However other assets may have multiple implementations (e.g. Texture may have an OpenGL and a DirectX implementation) so the factory installed
  * will determine that. Additionally the factory may pass through other information (OpenGL texture handle, or a reference to a central OpenGL context).
  *
- * @author Immortius
+ * 
  */
 fun interface AssetFactory<T : Asset<U>, U : AssetData> {
     /**

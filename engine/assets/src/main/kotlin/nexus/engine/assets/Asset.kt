@@ -27,7 +27,7 @@ import javax.annotation.concurrent.ThreadSafe
  * Implementations should consider thread safety around any methods they add if it is intended for assets to be used across multiple threads.
  * </p>
  *
- * @author Immortius
+ * 
  */
 @ThreadSafe
 abstract class Asset<U : AssetData>(val urn: ResourceUrn, val assetType: AssetType<*, U>) {

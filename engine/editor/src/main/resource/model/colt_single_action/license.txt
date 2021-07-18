@@ -1,0 +1,11 @@
+Model Information:
+* title:	Colt Single Action Army 1873
+* source:	https://sketchfab.com/3d-models/colt-single-action-army-1873-72eb20eec13b473daccbfbc61594aa3d
+* author:	Ayrat282 (https://sketchfab.com/Ayrat282)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Colt Single Action Army 1873" (https://sketchfab.com/3d-models/colt-single-action-army-1873-72eb20eec13b473daccbfbc61594aa3d) by Ayrat282 (https://sketchfab.com/Ayrat282) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

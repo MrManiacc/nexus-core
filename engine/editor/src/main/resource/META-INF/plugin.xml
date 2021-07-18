@@ -3,7 +3,7 @@
 
     <extensions namespace="com.nexus">
         <!--this defines our root tool panel. They will be rendered according to their properties-->
-        <toolPanel interface="nexus.editor.gui.ToolPanel"/>
+        <toolPanel interface="nexus.editor.api.ToolPanel"/>
     </extensions>
 
 

@@ -2,9 +2,10 @@ package nexus.engine.assets.format
 
 import mu.KotlinLogging
 import nexus.engine.assets.AssetData
-import nexus.engine.resource.InvalidAssetFilenameException
-import nexus.engine.resource.Name
-import nexus.engine.resource.name
+import nexus.engine.module.ex.InvalidAssetFilenameException
+import nexus.engine.module.naming.Name
+import nexus.engine.module.naming.name
+import nexus.engine.module.resources.FileReference
 import java.util.function.Predicate
 
 
@@ -12,7 +13,7 @@ import java.util.function.Predicate
  * A base implementation of [AssetFileFormat][org.terasology.gestalt.assets.format.AssetFileFormat] that will handle files with specified file extensions.
  * The name of the corresponding asset is assumed to be the non-extension part of the file name.
  *
- * @author Immortius
+ * 
  */
 abstract class AbstractAssetFileFormat<T : AssetData> : AssetFileFormat<T> {
     protected val logger = KotlinLogging.logger {  }

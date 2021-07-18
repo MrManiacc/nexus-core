@@ -1,16 +1,17 @@
 package nexus.engine.assets.format
 
 import nexus.engine.assets.AssetData
-import nexus.engine.resource.ResourceUrn
+import nexus.engine.module.naming.ResourceUrn
 import java.io.IOException
 
 
 /**
  * An AssetFileFormat handles loading a file representation of an asset into the appropriate [AssetData][org.terasology.gestalt.assets.AssetData].
  *
- * @author Immortius
+ * 
  */
 interface AssetFileFormat<T : AssetData> : FileFormat {
+
     /**
      * Creates an [AssetData][org.terasology.gestalt.assets.AssetData] from one or more files.
      *

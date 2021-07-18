@@ -6,11 +6,5 @@ plugins {
  * This is used to configure our plugin
  */
 nexus {
-    configuration {
-        module(":engine")
-        module(":engine:assets")
-    }
-
-    extend(project(":engine"), "core", "lwjgl")
-    extend("opengl")
+    extend(project(":engine"), "engine", "core", "lwjgl", "opengl")
 }

@@ -25,13 +25,29 @@ nexus {
             else -> "natives-linux"
         }
     }
-
-
     configuration {
         module(":engine:assets")
         module(":engine:registry")
+        module(":engine:modules")
+    }
+    /**
+     * This is used for anything that requires
+     */
+    configuration("engine") {
+        module(":engine")
+        module(":engine:assets")
+        module(":engine:registry")
+        module(":engine:modules")
     }
 
+
+    /**
+     * This is used for anything that requires
+     */
+    configuration("plugin") {
+        module(":plugins:glfw")
+        module(":plugins:opengl")
+    }
 
     /**
      * This core configuration can be applied to anyone that uses it to extend a given nexus plugin extension
@@ -42,6 +58,7 @@ nexus {
         maven();
         jcenter();
         google()
+
         implementation("net.oneandone.reflections8:reflections8:0.11.7")
         implementation("com.googlecode.gentyref:gentyref:1.2.0")
 
@@ -67,27 +84,8 @@ nexus {
         }
 
     }
-
-    configuration("lwjgl-nogl") {
-        platform("org.lwjgl:lwjgl-bom:@lwjgl_version")
-
-        //Here we define our lwjgl libraries
-        implementation("org.lwjgl:lwjgl:@lwjgl_version")
-        implementation("org.lwjgl:lwjgl-assimp:@lwjgl_version")
-        implementation("org.lwjgl:lwjgl-par:@lwjgl_version")
-        implementation("org.lwjgl:lwjgl-stb:@lwjgl_version")
-        implementation("org.lwjgl:lwjgl-zstd:@lwjgl_version")
-
-        //Here we define our native lwjgl libraries
-        runtimeOnly("org.lwjgl:lwjgl::@native")
-        runtimeOnly("org.lwjgl:lwjgl-assimp::@native")
-        runtimeOnly("org.lwjgl:lwjgl-par::@native")
-        runtimeOnly("org.lwjgl:lwjgl-stb::@native")
-        runtimeOnly("org.lwjgl:lwjgl-zstd::@native")
-    }
-
     /**
-     * This configuration allows lwjgl libraries to be added
+     * This adds all of the bare-bones lwjgl libraries, without and render api's like open or vulkan
      */
     configuration("lwjgl") {
 
@@ -96,20 +94,55 @@ nexus {
         //Here we define our lwjgl libraries
         implementation("org.lwjgl:lwjgl:@lwjgl_version")
         implementation("org.lwjgl:lwjgl-assimp:@lwjgl_version")
-        implementation("org.lwjgl:lwjgl-glfw:@lwjgl_version")
-        implementation("org.lwjgl:lwjgl-openal:@lwjgl_version")
-        implementation("org.lwjgl:lwjgl-opengl:@lwjgl_version")
+        implementation("org.lwjgl:lwjgl-par:@lwjgl_version")
+        implementation("org.lwjgl:lwjgl-tinyfd:@lwjgl_version")
         implementation("org.lwjgl:lwjgl-stb:@lwjgl_version")
+        implementation("org.lwjgl:lwjgl-zstd:@lwjgl_version")
+        implementation("org.lwjgl:lwjgl-glfw:@lwjgl_version")
 
         //Here we define our native lwjgl libraries
         runtimeOnly("org.lwjgl:lwjgl::@native")
         runtimeOnly("org.lwjgl:lwjgl-assimp::@native")
-        runtimeOnly("org.lwjgl:lwjgl-glfw::@native")
-        runtimeOnly("org.lwjgl:lwjgl-openal::@native")
-        runtimeOnly("org.lwjgl:lwjgl-opengl::@native")
+        runtimeOnly("org.lwjgl:lwjgl-par::@native")
         runtimeOnly("org.lwjgl:lwjgl-stb::@native")
+        runtimeOnly("org.lwjgl:lwjgl-tinyfd::@native")
+        runtimeOnly("org.lwjgl:lwjgl-zstd::@native")
+        runtimeOnly("org.lwjgl:lwjgl-glfw::@native")
 
     }
+
+    /**
+     * This configuration allows lwjgl libraries with opengl.
+     *  It extends upon the lwjgl configuration and adds the opegnl libraries
+     */
+    configuration("opengl") {
+
+        //Here we define our lwjgl libraries
+        implementation("org.lwjgl:lwjgl-openal:@lwjgl_version")
+        implementation("org.lwjgl:lwjgl-opengl:@lwjgl_version")
+
+        //Here we define our native lwjgl libraries
+        runtimeOnly("org.lwjgl:lwjgl-openal::@native")
+        runtimeOnly("org.lwjgl:lwjgl-opengl::@native")
+    }
+
+    /**
+     * This configuration allows lwjgl libraries with opengl.
+     *  It extends upon the lwjgl configuration and adds the opegnl libraries
+     */
+    configuration("vulkan") {
+        extend(project(":engine"), "lwjgl")
+
+        //Here we define our lwjgl libraries
+        implementation("org.lwjgl:lwjgl-openalr:@lwjgl_version")
+        implementation("org.lwjgl:lwjgl-vulkan:@lwjgl_version")
+        implementation("org.lwjgl:lwjgl-vma:@lwjgl_version")
+
+        //Here we define our native lwjgl libraries
+        runtimeOnly("org.lwjgl:lwjgl-openal::@native")
+        runtimeOnly("org.lwjgl:lwjgl-vma::@native")
+    }
+
     /**
      * Used for all libraries related to imgui
      */

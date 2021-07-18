@@ -1,0 +1,11 @@
+Model Information:
+* title:	Golden Thompson Submachine Gun
+* source:	https://sketchfab.com/3d-models/golden-thompson-submachine-gun-bfb5692f14f64ad8a326b9003bb41442
+* author:	The Unknown... (https://sketchfab.com/1514112)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Golden Thompson Submachine Gun" (https://sketchfab.com/3d-models/golden-thompson-submachine-gun-bfb5692f14f64ad8a326b9003bb41442) by The Unknown... (https://sketchfab.com/1514112) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
