@@ -6,9 +6,9 @@ import nexus.engine.module.sandbox.JavaModuleClassloader
 import nexus.engine.module.sandbox.PermissionProviderFactory
 import nexus.engine.module.sandbox.StandardPermissionProviderFactory
 import nexus.engine.module.sandbox.WarnOnlyProviderFactory
-import org.reflections8.Reflections
-import org.reflections8.util.ClasspathHelper
-import org.reflections8.util.ConfigurationBuilder
+import org.reflections.Reflections
+import org.reflections.util.ClasspathHelper
+import org.reflections.util.ConfigurationBuilder
 import java.io.File
 import java.io.IOException
 import java.lang.Boolean
@@ -30,7 +30,7 @@ class ModuleManager {
     private val wrappingPermissionProviderFactory: PermissionProviderFactory =
         WarnOnlyProviderFactory(permissionProviderFactory)
 
-    /**This is used for all kinds of magic, this wraps around all of the modulesl**/
+    /**This is used for all kinds of magic, this wraps around all of the modules**/
     private lateinit var environment: ModuleEnvironment
     private var engineModule: Module = loadAndConfigureEngineModule(moduleFactory, emptyList())
 

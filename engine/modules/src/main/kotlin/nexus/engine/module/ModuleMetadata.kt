@@ -41,6 +41,7 @@ class ModuleMetadata {
 
     var dependencies: MutableList<DependencyInfo> = Lists.newArrayList()
         private set
+
     private var displayName: I18nMap = I18nMap("")
     private var description: I18nMap = I18nMap("")
 

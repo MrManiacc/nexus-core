@@ -2,7 +2,7 @@ package nexus.engine.module
 
 import com.google.common.base.MoreObjects
 import com.google.common.collect.ImmutableSet
-import org.reflections8.util.ClasspathHelper
+import org.reflections.util.ClasspathHelper
 import java.io.File
 import java.io.IOException
 import java.net.MalformedURLException
@@ -79,7 +79,7 @@ class ClasspathCompromisingModuleFactory : ModuleFactory() {
                     throw RuntimeException(e)
                 }
             }.collect(ImmutableSet.toImmutableSet())
-            classLoaders = module.moduleManifest.configuration.classLoaders.orElse(emptyArray())
+            classLoaders = module.moduleManifest.configuration.classLoaders ?: emptyArray()
             name = module.id.toString()
         }
     }

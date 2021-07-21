@@ -1,5 +1,6 @@
 package nexus.editor.api.core.panels
 
+import imgui.ImGui
 import imgui.flag.ImGuiCol
 import imgui.flag.ImGuiStyleVar
 import nexus.editor.api.impl.AbstractToolPanel
@@ -7,6 +8,7 @@ import nexus.editor.api.internal.Anchor
 import nexus.editor.api.internal.DockFlag
 import nexus.editor.api.theme.PanelTheme
 import nexus.engine.Application
+import nexus.engine.assets.Assets
 import nexus.engine.render.RenderAPI
 
 /**
@@ -31,6 +33,10 @@ class ScenePanel<API : RenderAPI>(val app: Application<API>) : AbstractToolPanel
      * This should render the content of the tool window.
      */
     override fun renderContent() {
-        //TODO render the actual scene.
+        val types  = Assets.typeManager.assetTypes()
+        types.forEach {
+            ImGui.text(it.assetClass.simpleName)
+        }
+    //TODO render the actual scene.
     }
 }

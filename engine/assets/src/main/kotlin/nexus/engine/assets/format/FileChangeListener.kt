@@ -1,8 +1,8 @@
 package nexus.engine.assets.format
 
-import nexus.engine.module.Name
+import nexus.engine.module.naming.Name
+import nexus.engine.module.naming.ResourceUrn
 import nexus.engine.module.resources.FileReference
-import nexus.engine.resource.ResourceUrn
 import java.util.*
 
 /**

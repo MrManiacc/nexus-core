@@ -6,7 +6,7 @@ import mu.KotlinLogging
 import nexus.engine.module.naming.Name
 import nexus.engine.module.naming.Version
 import nexus.engine.module.resources.ModuleFileSource
-import org.reflections8.Reflections
+import org.reflections.Reflections
 import java.io.File
 import kotlin.reflect.KClass
 

@@ -4,7 +4,7 @@ import com.google.common.base.Joiner
 import io.github.classgraph.Resource
 import nexus.engine.module.resources.FileReference
 import nexus.engine.module.resources.ModuleFileSource
-import org.reflections8.Reflections
+import org.reflections.Reflections
 import java.io.InputStream
 import java.util.*
 import java.util.function.Function
@@ -60,7 +60,7 @@ class ClasspathFileSource(
      */
     override fun getFilesInPath(recursive: Boolean, path: List<String>): Collection<FileReference> {
         val fullPath = buildPathString(path)
-        return manifest.getResources { x: String -> true }.stream().filter { x: String ->
+        return manifest.getResources { true }.stream().filter { x: String ->
             x.startsWith(fullPath) && (recursive || !x.substring(
                 fullPath.length)
                 .contains(CLASS_PATH_SEPARATOR))
@@ -80,7 +80,7 @@ class ClasspathFileSource(
      */
     override fun getSubpaths(fromPath: List<String>): Set<String> {
         val fullPath = buildPathString(fromPath)
-        return manifest.getResources { x: String -> true }.stream().filter { x: String ->
+        return manifest.getResources { true }.stream().filter { x: String ->
             x.startsWith(fullPath) && x.substring(
                 fullPath.length)
                 .contains(CLASS_PATH_SEPARATOR)

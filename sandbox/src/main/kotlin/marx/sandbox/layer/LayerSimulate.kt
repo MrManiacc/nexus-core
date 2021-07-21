@@ -76,7 +76,7 @@ class LayerSimulate(app: Application<*>) :
      */
     override fun onUpdate(update: Timestep) {
         shader.bind()
-        scene.submit(triangleVAO)
+        renderScene.submit(triangleVAO)
         shader.unbind()
     }
 

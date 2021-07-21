@@ -4,16 +4,19 @@ import com.google.common.collect.Lists
 import dorkbox.messageBus.MessageBus
 import dorkbox.messageBus.annotations.Subscribe
 import mu.KotlinLogging
-import nexus.engine.Application
-import nexus.engine.camera.CameraController
 import nexus.editor.camera.OrthoCamera
 import nexus.editor.camera.OrthoController
 import nexus.editor.layer.LayerEditor
 import nexus.editor.layer.LayerViewport
 import nexus.editor.wrapper.DebugRenderAPI
+import nexus.engine.Application
+import nexus.engine.assets.Assets
+import nexus.engine.assets.mesh.Mesh
+import nexus.engine.camera.CameraController
 import nexus.engine.events.Events
 import nexus.engine.input.IInput
 import nexus.engine.layer.Layer
+import nexus.engine.module.naming.urn
 import nexus.engine.render.RenderScene
 import nexus.engine.render.Renderer
 import nexus.engine.render.framebuffer.Framebuffer
@@ -28,6 +31,7 @@ import nexus.plugins.opengl.GLFramebuffer
 import nexus.plugins.opengl.GLRenderAPI
 import nexus.plugins.opengl.GLScene
 import org.slf4j.Logger
+import java.util.*
 
 
 /**
@@ -89,10 +93,8 @@ object Editor : Application<DebugRenderAPI>() {
     fun onGLInitialized(event: Events.Window.Initialized) {
         pushLayer(editorLayer)
         pushLayer(viewportLayer)
-//        val meshType = AssetTypeManager().createAssetType(Mesh::class, Mesh.Factory::class, "testing")
-//        meshType.loadAsset()
-    }
 
+    }
 
 }
 

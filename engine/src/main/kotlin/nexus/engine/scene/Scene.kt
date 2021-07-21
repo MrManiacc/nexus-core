@@ -36,6 +36,4 @@ interface Scene {
     fun process(delta: Float)
 
 
-
-
 }

@@ -177,7 +177,7 @@ class TableModuleRegistry : ModuleRegistry {
         }
     }
 
-    fun toArray(): Array<Any> {
+    fun toArray(): Array<Module> {
         return modules.values().toTypedArray()
     }
 

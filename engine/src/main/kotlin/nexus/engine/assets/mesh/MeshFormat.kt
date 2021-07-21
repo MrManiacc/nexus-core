@@ -1,9 +1,8 @@
 package nexus.engine.assets.mesh
 
-import nexus.engine.assets.RegisterAssetType
 import nexus.engine.assets.format.AbstractAssetFileFormat
 import nexus.engine.assets.format.AssetDataFile
-import nexus.engine.resource.ResourceUrn
+import nexus.engine.module.naming.ResourceUrn
 import java.util.function.Predicate
 
 class MeshFormat : AbstractAssetFileFormat<MeshData>(

@@ -42,9 +42,9 @@ abstract class RenderAPI(
         val Null: RenderAPI = object : RenderAPI(object : RenderCommand {
             override fun blending(enabled: Boolean) = Unit
         }, object : RenderScene {
-            override val renderAPI: RenderAPI
+            val renderAPI: RenderAPI
                 get() = Renderer()
-            override var camera: Camera<*> = Camera.Null()
+            var camera: Camera<*> = Camera.Null()
 
             /*This will start a new nexus.engine.scene*/
             override fun beginScene(camera: Camera<*>) = Unit

@@ -5,7 +5,7 @@ import com.google.common.collect.Sets
 import nexus.engine.assets.Asset
 import nexus.engine.assets.AssetData
 import nexus.engine.assets.AssetType
-import nexus.engine.resource.ResourceUrn
+import nexus.engine.module.naming.ResourceUrn
 import java.util.*
 import kotlin.reflect.KClass
 
@@ -17,9 +17,8 @@ import kotlin.reflect.KClass
  * class of interest, and delegates down to them for actions such as obtaining and reloading assets.
  * </p>
  *
- * 
  */
-class AssetManager(private val assetTypeManager: AssetTypeManager) {
+open class AssetManager(val typeManager: AssetTypeManager) {
 
     /**
      * @param urn  The urn of the asset to check. Must not be an instance urn
@@ -27,7 +26,7 @@ class AssetManager(private val assetTypeManager: AssetTypeManager) {
      * @return whether an asset is loaded with the given urn
      */
     fun <T : Asset<U>, U : AssetData> isLoaded(urn: ResourceUrn, type: KClass<T>): Boolean {
-        for (assetType in assetTypeManager.getAssetTypes(type)) {
+        for (assetType in typeManager.getAssetTypes(type)) {
             if (assetType.isLoaded(urn))
                 return true
         }
@@ -42,7 +41,7 @@ class AssetManager(private val assetTypeManager: AssetTypeManager) {
      * @return A set of the ResourceUrns of all loaded assets
     </T> */
     fun <T : Asset<U>, U : AssetData> getLoadedAssetUrns(type: KClass<T>): Set<ResourceUrn> {
-        val assetTypes: List<AssetType<out T, *>> = assetTypeManager.getAssetTypes(type)
+        val assetTypes: List<AssetType<out T, *>> = typeManager.getAssetTypes(type)
         return when (assetTypes.size) {
             0 -> emptySet()
             1 -> assetTypes[0].getLoadedAssetUrns()
@@ -65,7 +64,7 @@ class AssetManager(private val assetTypeManager: AssetTypeManager) {
      * @return A list of all the loaded assets
     </U></T> */
     fun <T : Asset<U>, U : AssetData> getLoadedAssets(type: KClass<T>): Set<T> {
-        val assetTypes: List<AssetType<out T, *>> = assetTypeManager.getAssetTypes(type)
+        val assetTypes: List<AssetType<out T, *>> = typeManager.getAssetTypes(type)
         return when (assetTypes.size) {
             0 -> emptySet()
             else -> {
@@ -87,7 +86,7 @@ class AssetManager(private val assetTypeManager: AssetTypeManager) {
      * @return A set of the ResourceUrns of all available assets
     </T> */
     fun <T : Asset<U>, U : AssetData> getAvailableAssets(type: KClass<T>): Set<ResourceUrn> {
-        val assetTypes: List<AssetType<out T, *>> = assetTypeManager.getAssetTypes(type)
+        val assetTypes: List<AssetType<out T, *>> = typeManager.getAssetTypes(type)
         return when (assetTypes.size) {
             0 -> emptySet()
             1 -> assetTypes[0].getAvailableAssetUrns()
@@ -112,7 +111,7 @@ class AssetManager(private val assetTypeManager: AssetTypeManager) {
      * @return An Optional containing the requested asset if successfully obtained
     </U></T> */
     fun <T : Asset<U>, U : AssetData> getAsset(urn: ResourceUrn, type: KClass<T>): Optional<T> {
-        val assetTypes: List<AssetType<out T, *>> = assetTypeManager.getAssetTypes(type)
+        val assetTypes: List<AssetType<out T, *>> = typeManager.getAssetTypes(type)
         when (assetTypes.size) {
             0 -> return Optional.empty()
             1 -> {
@@ -131,6 +130,8 @@ class AssetManager(private val assetTypeManager: AssetTypeManager) {
         return Optional.empty()
     }
 
+    inline fun <reified T : Asset<U>, reified U : AssetData> getAsset(urn: ResourceUrn): Optional<T> =
+        getAsset(urn, T::class)
 
     /**
      * Creates or reloads an asset with the given urn, data and type. The type must be the actual type of the asset, not a super type.
@@ -144,12 +145,15 @@ class AssetManager(private val assetTypeManager: AssetTypeManager) {
      * @throws java.lang.IllegalStateException if the asset type is not managed by this AssetManager.
     </U></T> */
     fun <T : Asset<U>, U : AssetData> loadAsset(urn: ResourceUrn, data: U, type: KClass<T>): T {
-        val assetType: Optional<AssetType<T, U>> = assetTypeManager.getAssetType(type)
+        val assetType: Optional<AssetType<T, U>> = typeManager.getAssetType(type)
         return if (assetType.isPresent) {
             assetType.get().loadAsset(urn, data)
         } else {
             throw IllegalStateException("$type is not a supported type of asset")
         }
     }
+
+    inline fun <reified T : Asset<U>, reified U : AssetData> loadAsset(urn: ResourceUrn, data: U): T =
+        loadAsset(urn, data, T::class)
 
 }

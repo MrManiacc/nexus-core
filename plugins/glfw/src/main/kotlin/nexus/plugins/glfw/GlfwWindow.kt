@@ -4,8 +4,8 @@ import dorkbox.messageBus.annotations.Subscribe
 import mu.KotlinLogging
 import nexus.engine.Application
 import nexus.engine.events.Events
-import nexus.engine.window.IWindow
 import nexus.engine.render.RenderAPI
+import nexus.engine.window.IWindow
 import org.joml.Vector4i
 import org.lwjgl.glfw.GLFW
 import org.lwjgl.glfw.GLFWErrorCallback
@@ -19,8 +19,7 @@ data class GlfwWindow(
     override val height: Int = 1080,
     override val title: String = "nexus.plugins.glfw-window",
     val app: Application<*>,
-
-    ) : IWindow {
+) : IWindow {
     private val keyEvent = Events.Input.KeyEvent(this, -1, -1, -1, -1)
     private val keyPressEvent = Events.Input.KeyPress(this, -1, -1)
     private val keyReleaseEvent = Events.Input.KeyRelease(this, -1, -1)

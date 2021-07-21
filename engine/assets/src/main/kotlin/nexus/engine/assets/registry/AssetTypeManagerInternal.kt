@@ -3,15 +3,14 @@ package nexus.engine.assets.registry
 import mu.KotlinLogging
 import nexus.engine.assets.Asset
 import nexus.engine.assets.AssetData
-import nexus.engine.assets.AssetFactory
 import nexus.engine.assets.AssetType
-import nexus.engine.module.resources.ModuleFileSource
-import nexus.engine.module.ClasspathFileSource
 import nexus.engine.assets.format.producer.AssetDataProducer
 import nexus.engine.assets.scan.AssetTypeScanner
 import nexus.engine.assets.scan.ReflectiveAssetTypeScanner
-import org.reflections8.Reflections
-import org.reflections8.scanners.ResourcesScanner
+import nexus.engine.module.ClasspathFileSource
+import nexus.engine.module.resources.ModuleFileSource
+import org.reflections.Reflections
+import org.reflections.scanners.ResourcesScanner
 import java.util.*
 import java.util.function.Consumer
 import kotlin.reflect.KClass
@@ -92,7 +91,7 @@ class AssetTypeManagerInternal internal constructor() : AssetTypeManager {
      * @return A list of available AssetTypes.
     </T> */
     override fun <T : Asset<*>> getAssetTypes(type: KClass<T>): List<AssetType<out T, *>> {
-        return registeredTypes.filterKeys { type.java.isAssignableFrom(it.java) }.values as List<AssetType<out T, *>>
+        return (registeredTypes.filterKeys { type.java.isAssignableFrom(it.java) }.values as Collection<AssetType<out T, *>>).toList()
     }
 
     /**
@@ -107,41 +106,6 @@ class AssetTypeManagerInternal internal constructor() : AssetTypeManager {
         removed.close()
     }
 
-    /**
-     * Creates and registers an asset type
-     *
-     * @param type           The type of asset the AssetType will handle
-     * @param factory        The factory for creating an asset from asset data
-     * @param subfolderNames The names of the subfolders providing asset files, if any
-     * @param <T>            The type of Asset
-     * @param <U>            The type of AssetData
-     * @return The new AssetType
-    </U></T> */
-    override fun <T : Asset<U>, U : AssetData> createAssetType(
-        type: KClass<T>,
-        factory: KClass<out AssetFactory<T, U>>,
-        vararg subfolderNames: String,
-    ): AssetType<T, U> {
-        return createAssetType(type, factory, subfolderNames.toList())
-    }
-
-    /**
-     * Creates and registers an asset type
-     *
-     * @param type           The type of asset the AssetType will handle
-     * @param factory        The factory for creating an asset from asset data
-     * @param subfolderNames The names of the subfolders providing asset files, if any
-     * @param <T>            The type of Asset
-     * @param <U>            The type of AssetData
-     * @return The new AssetType
-    </U></T> */
-    override fun <T : Asset<U>, U : AssetData> createAssetType(
-        type: KClass<T>,
-        factory: KClass<out AssetFactory<T, U>>,
-        subfolderNames: Collection<String>,
-    ): AssetType<T, U> {
-        return AssetType(type, factory)
-    }
 
     /**
      * Registers an asset type

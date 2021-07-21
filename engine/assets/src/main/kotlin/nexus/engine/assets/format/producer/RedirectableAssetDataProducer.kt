@@ -1,7 +1,7 @@
 package nexus.engine.assets.format.producer
 
 import nexus.engine.assets.AssetData
-import nexus.engine.resource.ResourceUrn
+import nexus.engine.module.naming.ResourceUrn
 
 
 /**
@@ -18,15 +18,6 @@ import nexus.engine.resource.ResourceUrn
  * 
  */
 interface RedirectableAssetDataProducer<U : AssetData> : AssetDataProducer<U> {
-
-    /**
-     * Optionally can provide a set of ResourceUrns this AssetDataProducer can provide data for.  It is not required by the asset system, and is intended only for
-     * displays of available assets. If it is infeasible to provide such a list (such as when the AssetDataProducer procedurally generates assets based on part of the
-     * urn) an empty set can be returned instead.
-     *
-     * @return A set that may contain the urns of assets this producer can provide data for.
-     */
-    val availableAssetUrns: Set<ResourceUrn> get() = emptySet()
 
     /**
      * Gives the AssetDataProducer the opportunity to "redirect" the urn to another urn. If the asset data producer does not wish to do so it should return the original

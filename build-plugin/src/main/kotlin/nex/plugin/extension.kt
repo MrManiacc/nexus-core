@@ -24,6 +24,7 @@ open class PluginExtension @Inject constructor(internal val project: Project) {
     fun extends(extends: Extends.() -> Unit) =
         this.extends.apply(extends)
 
+
     /**
      * This will extend a configuration from within the location pluginExtension
      */
@@ -61,7 +62,7 @@ open class PluginExtension @Inject constructor(internal val project: Project) {
 }
 
 data class SourceSet(
-    private val project: Project
+    private val project: Project,
 ) {
     internal val sourceInputs = ArrayList<Source>()
     internal val resourceInputs = ArrayList<Source>()
@@ -127,7 +128,7 @@ data class Source(val path: String, val relativeToProject: Boolean) {
 
 data class ConfigurationManager(
     val project: Project,
-    val dependencyGroups: MutableMap<String, Configuration> = HashMap()
+    val dependencyGroups: MutableMap<String, Configuration> = HashMap(),
 ) {
     operator fun get(key: String): Configuration = dependencyGroups.computeIfAbsent(key) { Configuration(project, key) }
 
@@ -226,6 +227,12 @@ data class Configuration(val project: Project, val name: String) {
     fun runtimeOnly(value: Dependency) = dependency(value)
     fun runtimeOnly(value: String) = runtimeOnly(RuntimeOnly(value))
 
+    fun testRuntimeOnly(value: Dependency) = dependency(value)
+    fun testRuntimeOnly(value: String) = testRuntimeOnly(TestRuntimeOnly(value))
+
+    fun testImplementation(value: Dependency) = dependency(value)
+    fun testImplementation(value: String) = testImplementation(TestImplementation(value))
+
 
     /**
      * Adds all of the [config] to the other repository
@@ -293,9 +300,9 @@ interface Dependency {
 }
 
 data class ProjectImplementation(
-    override var dependencyPath: String
+    override var dependencyPath: String,
 
-) : Dependency {
+    ) : Dependency {
     override val isProject: Boolean
         get() = true
     override val dependencyGroup: String
@@ -303,7 +310,7 @@ data class ProjectImplementation(
 }
 
 data class Implementation(
-    override var dependencyPath: String
+    override var dependencyPath: String,
 ) : Dependency {
 
     override val dependencyGroup: String
@@ -312,7 +319,7 @@ data class Implementation(
 
 
 data class PlatformImplementation(
-    override var dependencyPath: String
+    override var dependencyPath: String,
 ) : Dependency {
     override val isPlatform: Boolean
         get() = true
@@ -322,7 +329,7 @@ data class PlatformImplementation(
 
 
 data class Compile(
-    override var dependencyPath: String
+    override var dependencyPath: String,
 ) : Dependency {
 
     override val dependencyGroup: String
@@ -330,8 +337,23 @@ data class Compile(
 }
 
 
+data class TestRuntimeOnly(
+    override var dependencyPath: String,
+) : Dependency {
+
+    override val dependencyGroup: String
+        get() = "testRuntimeOnly"
+}
+
+data class TestImplementation(
+    override var dependencyPath: String,
+) : Dependency {
+
+    override val dependencyGroup: String
+        get() = "testImplementation"
+}
 data class RuntimeOnly(
-    override var dependencyPath: String
+    override var dependencyPath: String,
 ) : Dependency {
 
     override val dependencyGroup: String

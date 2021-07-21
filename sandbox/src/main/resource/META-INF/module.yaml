@@ -1,0 +1,9 @@
+name: Sandbox
+version: 1.0.0
+
+dependencies:
+  - engine
+  - engine:editor
+  - engine:assets
+  - plugins:opengl
+  - plugins:glfw

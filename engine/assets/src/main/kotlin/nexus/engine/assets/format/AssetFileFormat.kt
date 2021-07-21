@@ -8,7 +8,6 @@ import java.io.IOException
 /**
  * An AssetFileFormat handles loading a file representation of an asset into the appropriate [AssetData][org.terasology.gestalt.assets.AssetData].
  *
- * 
  */
 interface AssetFileFormat<T : AssetData> : FileFormat {
 

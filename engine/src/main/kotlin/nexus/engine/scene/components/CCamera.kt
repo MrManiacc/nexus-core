@@ -18,7 +18,5 @@ data class CCamera(val camera: Camera<*>) : Component() {
     /**
      * This allows us to accecss our transform directly via a () call on the variable instance
      */
-    operator
-
-    fun invoke(): Transform = this.camera
+    operator fun invoke(): Transform = this.camera
 }

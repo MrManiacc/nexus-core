@@ -1,7 +1,7 @@
 package nexus.engine.assets.format
 
 import nexus.engine.module.ex.InvalidAssetFilenameException
-import nexus.engine.module.Name
+import nexus.engine.module.naming.Name
 import nexus.engine.module.resources.FileReference
 import java.util.function.Predicate
 

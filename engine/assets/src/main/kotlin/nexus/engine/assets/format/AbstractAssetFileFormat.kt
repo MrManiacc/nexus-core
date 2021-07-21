@@ -13,7 +13,6 @@ import java.util.function.Predicate
  * A base implementation of [AssetFileFormat][org.terasology.gestalt.assets.format.AssetFileFormat] that will handle files with specified file extensions.
  * The name of the corresponding asset is assumed to be the non-extension part of the file name.
  *
- * 
  */
 abstract class AbstractAssetFileFormat<T : AssetData> : AssetFileFormat<T> {
     protected val logger = KotlinLogging.logger {  }

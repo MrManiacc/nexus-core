@@ -22,7 +22,6 @@ import javax.annotation.concurrent.Immutable
  * Immutable.
  * </p>
  *
- * 
  */
 @Immutable class AssetDataFile(
     /**

@@ -11,6 +11,9 @@ import nexus.editor.camera.OrthoController
 import nexus.editor.layer.LayerEditor
 import nexus.editor.wrapper.DebugRenderAPI
 import nexus.engine.Application
+import nexus.engine.assets.registry.AssetManager
+import nexus.engine.assets.registry.AssetTypeManager
+import nexus.engine.assets.registry.AssetTypeManagerInternal.Companion.create
 import nexus.engine.camera.CameraController
 import nexus.engine.events.Events.Input.KeyPress
 import nexus.engine.events.Events.Window.Initialized
@@ -53,7 +56,7 @@ object Sandbox : Application<GLRenderAPI>() {
     override val renderScene: RenderScene = GLScene(GLRenderAPI::class)
     override val viewport: Framebuffer = GLFramebuffer(
         FramebufferSpecification(
-            1280, 720, format = FramebufferFormat(
+            1920, 1080, format = FramebufferFormat(
                 FramebufferFormat.Attachment.DepthBuffer, FramebufferFormat.Attachment.ColorImage
             )
         )

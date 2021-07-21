@@ -15,7 +15,7 @@ import java.util.regex.Pattern
  *
  *
  */
-data class ResourceUrn internal constructor(
+data class ResourceUrn(
     /**
      * @return The group name part of the urn. This identifies the group that the resource belongs to.
      */
@@ -127,7 +127,7 @@ data class ResourceUrn internal constructor(
     companion object {
         internal const val RESOURCE_SEPARATOR = ":"
         internal const val FRAGMENT_SEPARATOR = "#"
-        internal const val INSTANCE_INDICATOR = "!instance"
+        const val INSTANCE_INDICATOR = "!instance"
         val URN_REGEX = "([^:]+):([^#!]+)(?:#([^!]+))?(!instance)?".toRegex()
 
 

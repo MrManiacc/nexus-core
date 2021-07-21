@@ -2,6 +2,11 @@ package nexus.editor.layer
 
 import dorkbox.messageBus.annotations.Subscribe
 import nexus.engine.Application
+import nexus.engine.assets.Assets
+import nexus.engine.assets.mesh.Mesh
+import nexus.engine.assets.texture.TextureData
+import nexus.engine.assets.texture.TextureInstance
+import nexus.engine.assets.texture.TextureInstanceData
 import nexus.engine.camera.CameraController
 import nexus.engine.events.Events
 import nexus.engine.layer.Layer
@@ -9,11 +14,9 @@ import nexus.engine.math.MathDSL.Extensions.by
 import nexus.engine.math.Transform
 import nexus.engine.math.Vec2
 import nexus.engine.math.Vec3
+import nexus.engine.module.naming.urn
 import nexus.engine.render.Buffer
 import nexus.engine.render.RenderAPI
-import nexus.engine.assets.texture.TextureData
-import nexus.engine.assets.texture.TextureInstance
-import nexus.engine.assets.texture.TextureInstanceData
 import nexus.plugins.opengl.GLBuffer
 import nexus.plugins.opengl.GLShader
 import nexus.plugins.opengl.GLTexture2D
@@ -56,12 +59,15 @@ class LayerViewport<API : RenderAPI>(app: Application<API>, target: KClass<API>)
             )
         )
     )
+//    private val quadMesh: Optional<Mesh> = Assets.getAsset(urn("engine:prims#cube"))
 
 
     /**
      * This is called upon the layer being attached to the application
      */
     override fun onAttach() {
+
+        println(Assets.getAsset(urn("engine:prims#quad"), Mesh::class))
         quad.create()
         shader.compile(Shaders.textureShader()) //TODO: make this return a shader instance or look into materials
         textureInstance = texture.instantiate(
@@ -92,14 +98,13 @@ class LayerViewport<API : RenderAPI>(app: Application<API>, target: KClass<API>)
         render(app.controller)
         renderAPI.command.viewport(size, Vec2.Zero)
         app.viewport.unbind()
-
     }
 
     /**
      * This will render the
      */
     private fun render(controller: CameraController<*>) {
-        scene.sceneOf(controller) {
+        renderScene.sceneOf(controller) {
             submit(quad, shader, transform) { shader, transform ->
                 textureInstance.bind(0)
                 shader.uploadTexture("u_Texture", textureInstance)

@@ -6,10 +6,10 @@ import nexus.engine.module.resources.ModuleFileSource
 import nexus.engine.module.sandbox.ObtainClassloader
 import nexus.engine.module.sandbox.PermissionProvider
 import nexus.engine.module.sandbox.PermissionProviderFactory
-import org.reflections8.Reflections
-import org.reflections8.ReflectionsException
-import org.reflections8.scanners.SubTypesScanner
-import org.reflections8.util.ConfigurationBuilder
+import org.reflections.Reflections
+import org.reflections.ReflectionsException
+import org.reflections.scanners.SubTypesScanner
+import org.reflections.util.ConfigurationBuilder
 import org.slf4j.LoggerFactory
 import java.io.IOException
 import java.security.AccessController

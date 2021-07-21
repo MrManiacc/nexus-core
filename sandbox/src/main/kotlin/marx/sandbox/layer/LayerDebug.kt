@@ -70,7 +70,7 @@ class LayerDebug(app: Application<*>) : Layer<DebugRenderAPI>(app, DebugRenderAP
 
     /*Draws our debug test nexus.engine.scene*/
     private fun drawScene() {
-        scene.sceneOf(Sandbox.controller) {
+        renderScene.sceneOf(Sandbox.controller) {
             textureInstance.bind()
             submit(Primitives.QuadVAO, textureShader, transformBuffer) { shader, transform ->
                 shader.uploadTexture("u_Texture", textureInstance)

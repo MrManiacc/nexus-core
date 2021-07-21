@@ -1,11 +1,17 @@
 package nexus.engine.assets.scan
 
 import mu.KotlinLogging
-import nexus.engine.assets.*
-import nexus.engine.assets.format.AssetFileFormat
-import org.reflections8.Reflections
-import org.reflections8.scanners.TypeAnnotationsScanner
-import kotlin.reflect.KClass
+import nexus.engine.assets.Asset
+import nexus.engine.assets.AssetData
+import nexus.engine.assets.AssetType
+import nexus.engine.assets.RegisterAssetType
+import org.reflections.Reflections
+import org.reflections.scanners.SubTypesScanner
+import org.reflections.scanners.TypeAnnotationsScanner
+import org.reflections.util.ClasspathHelper
+import org.reflections.util.ConfigurationBuilder
+import org.slf4j.Logger
+import java.util.*
 
 /**
  * This is used for reflectively scanning the class path using the given search paramters
@@ -19,19 +25,28 @@ class ReflectiveAssetTypeScanner : AssetTypeScanner {
     @Suppress("UNCHECKED_CAST")
     override fun collect(): List<AssetType<*, *>> {
         val result = ArrayList<AssetType<*, *>>()
-        val reflections = Reflections(TypeAnnotationsScanner()).getTypesAnnotatedWith(RegisterAssetType::class.java)
+        val empty: Optional<Logger> = Optional.empty()
+
+        val reflections =
+            Reflections(
+                ConfigurationBuilder()
+                    .addScanners(TypeAnnotationsScanner(), SubTypesScanner(false))
+                    .addUrls(ClasspathHelper.forPackage("nexus")),
+            ).getTypesAnnotatedWith(RegisterAssetType::class.java)
+
         // iterate each instance of asset class
         reflections.forEach {
             val annotation = it.getAnnotation(RegisterAssetType::class.java)
             if (Asset::class.java.isAssignableFrom(it)) {
-                val assetClass = it as KClass<out Asset<out AssetData>>//TODO check the saftey of this
-                val factoryClass =
-                    annotation.factory as KClass<out AssetFactory<out Asset<out AssetData>, out AssetData>>//TODO check the saftey of this
-                val formatClass = it as KClass<out AssetFileFormat<out AssetData>>//TODO check the saftey of this
+
+                val assetClass = (it as Class<out Asset<out AssetData>>).kotlin//TODO check the saftey of this
                 val assetType: AssetType<out Asset<out AssetData>, out AssetData> =
-                    AssetType(assetClass, factoryClass, formatClass) //This creates an unsafe instance of the asset type
+                    AssetType(annotation.format,
+                        annotation.factory,
+                        annotation.producers,
+                        assetClass) //This creates an unsafe instance of the asset type
                 result.add(assetType)
-                logger.info { "Automatically created and queued for registration AssetType=${assetClass.qualifiedName}, factory=${factoryClass.qualifiedName}, format=${formatClass.qualifiedName}" }
+                logger.info { "Automatically created and queued for registration AssetType=${assetClass.qualifiedName}" }
             }
         }
         return result

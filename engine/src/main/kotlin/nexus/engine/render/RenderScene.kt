@@ -8,16 +8,14 @@ import nexus.engine.math.Transform
  * This allows us to nexus.engine.render a nexus.engine.scene. It is platform agnostic
  */
 interface RenderScene {
-    val renderAPI: RenderAPI
-    var camera: Camera<*>
+
 
     /*Creates a new nexus.engine.scene of the */
     fun sceneOf(
         cameraController: CameraController<*>,
-        body: RenderScene.() -> Unit
+        body: RenderScene.() -> Unit,
     ) {
-        this.camera = cameraController.camera
-        beginScene(camera)
+        beginScene(cameraController.camera)
         body()
         endScene()
     }
@@ -32,9 +30,8 @@ interface RenderScene {
     fun submit(
         array: VertexArray,
         shader: Shader,
-        transform: Transform
+        transform: Transform,
     )
-
 
     /*This method should be overloaded for all of the various types of things we can submit*/
     fun submit(
@@ -46,7 +43,7 @@ interface RenderScene {
                 "u_ModelMatrix",
                 transform.matrix
             )
-        }
+        },
     ) = submit(array, shaderIn, transformIn, draw) { _, _ -> }
 
     /*This method should be overloaded for all of the various types of things we can submit*/
@@ -55,7 +52,7 @@ interface RenderScene {
         shaderIn: Shader,
         transformIn: Transform,
         preDraw: RenderScene.(Shader, Transform) -> Unit,
-        postDraw: RenderScene.(Shader, Transform) -> Unit = { _, _ -> }
+        postDraw: RenderScene.(Shader, Transform) -> Unit = { _, _ -> },
     )
 
     /*This clears our all of objects or entities on the nexus.engine.scene*/

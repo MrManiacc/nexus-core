@@ -70,10 +70,16 @@ class ArtemisScene(configuration: WorldConfiguration = WorldConfiguration()) : W
     }
 
     /**
+     * This routes up to the base level scene to allow for accessing of the scene with inline reified stuff
+     */
+    inline fun <reified T : BaseSystem> Scene.getSystem(): T = getSystem(T::class)
+
+    /**
      * This will update the ecs world
      */
     override fun process(delta: Float) {
         super.delta = delta
         super.process()
     }
+
 }

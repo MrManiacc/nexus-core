@@ -9,10 +9,10 @@ import mu.KotlinLogging
 import nexus.engine.assets.format.AssetFileFormat
 import nexus.engine.assets.format.producer.AssetDataProducer
 import nexus.engine.assets.format.producer.RedirectableAssetDataProducer
-import nexus.engine.module.Name
+import nexus.engine.module.naming.Name
+import nexus.engine.module.naming.ResourceUrn
+import nexus.engine.module.naming.urn
 import nexus.engine.module.utilities.getTypeParameterBindingForInheritedClass
-import nexus.engine.resource.ResourceUrn
-import nexus.engine.resource.urn
 import java.io.Closeable
 import java.io.IOException
 import java.lang.ref.PhantomReference
@@ -24,7 +24,6 @@ import java.security.PrivilegedActionException
 import java.security.PrivilegedExceptionAction
 import java.util.*
 import java.util.concurrent.Semaphore
-import javax.annotation.Nullable
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createInstance
 
@@ -40,17 +39,29 @@ import kotlin.reflect.full.createInstance
  */
 class AssetType<T : Asset<U>, U : AssetData>(
     val assetClass: KClass<T>,
-    val factoryClass: KClass<out AssetFactory<T, U>>,
+    formatClass: KClass<out AssetFileFormat<U>>,
+    factoryClass: KClass<out AssetFactory<T, U>>,
+    producerClasses: Array<KClass<out AssetDataProducer<U>>>,
 ) : Closeable {
-    val assetDataType: KClass<U>
-
-    private val logger = KotlinLogging.logger { }
-    private var format: AssetFileFormat<U>? = null
-    private val factory: AssetFactory<T, U> = factoryClass.createInstance()
+    private val format: AssetFileFormat<U>
+    private val factory: AssetFactory<T, U>
     private val producers: MutableList<AssetDataProducer<U>> = Lists.newCopyOnWriteArrayList()
+    //========================
+
+
+    val assetDataType: KClass<U>
+    private val logger = KotlinLogging.logger { }
     private val loadedAssets: MutableMap<ResourceUrn, T> = MapMaker().concurrencyLevel(4).makeMap()
     private val instanceAssets: ListMultimap<ResourceUrn, WeakReference<T>> = Multimaps.synchronizedListMultimap(
         ArrayListMultimap.create())
+
+    init {
+        format = formatClass.createInstance()
+        factory = factoryClass.createInstance()
+        producerClasses.forEach {
+            addProducer(it.createInstance())
+        }
+    }
 
     // Per-asset locks to deal with situations where multiple threads attempt to obtain or create the same unloaded asset concurrently
     private val locks: MutableMap<ResourceUrn, ResourceLock> =
@@ -85,12 +96,14 @@ class AssetType<T : Asset<U>, U : AssetData>(
      * Asset/AssetData class type pair.
      */
     constructor(
-        assetClass: KClass<out Asset<out AssetData>>,
-        factoryClass: KClass<out AssetFactory<out Asset<out AssetData>, out AssetData>>,
-        formatClass: KClass<out AssetFileFormat<out AssetData>>,
-    ) : this(assetClass as KClass<T>, factoryClass as KClass<out AssetFactory<T, U>>) {
-        this.format = formatClass.createInstance() as AssetFileFormat<U>
-    }
+        formatClass: KClass<out AssetFileFormat<*>>,
+        factoryClass: KClass<out AssetFactory<*, *>>,
+        producerClasses: Array<KClass<out AssetDataProducer<*>>>,
+        assetClass: KClass<out Asset<*>>,
+    ) : this(assetClass as KClass<T>,
+        formatClass as KClass<out AssetFileFormat<U>>,
+        factoryClass as KClass<out AssetFactory<T, U>>,
+        producerClasses as Array<KClass<out AssetDataProducer<U>>>)
 
 
     /**
@@ -162,6 +175,14 @@ class AssetType<T : Asset<U>, U : AssetData>(
     }
 
     /**
+     * This will refresh all of the assets from the asset file format. All loaded assets are reloaded
+     */
+    fun refreshFromFormat() {
+        format
+    }
+
+
+    /**
      * Reloads an asset from the current producers, if one of them can produce it
      *
      * @param asset The asset to reload
@@ -170,7 +191,7 @@ class AssetType<T : Asset<U>, U : AssetData>(
     private fun reloadFromProducers(asset: T): Boolean {
         try {
             for (producer in producers) {
-                val data = producer.produceData(asset.urn)
+                val data = producer.produce(asset.urn)
                 if (data.isPresent) {
                     asset.reload(data.get())
                     for (assetInstanceRef in instanceAssets[asset.urn.instanceUrn]) {
@@ -239,7 +260,7 @@ class AssetType<T : Asset<U>, U : AssetData>(
         try {
             return AccessController.doPrivileged(PrivilegedExceptionAction {
                 for (producer in producers) {
-                    val data = producer.produceData(redirectUrn)
+                    val data = producer.produce(redirectUrn)
                     if (data.isPresent) {
                         return@PrivilegedExceptionAction Optional.of(loadAsset(redirectUrn, data.get()))
                     }
@@ -331,11 +352,8 @@ class AssetType<T : Asset<U>, U : AssetData>(
         if (!moduleContext.isEmpty) {
             possibleModules = resolutionStrategy.resolve(possibleModules, moduleContext)
         }
-        return Sets.newLinkedHashSet(Collections2.transform(possibleModules, object : Function<Name, ResourceUrn> {
-            @Nullable override fun apply(input: Name?): ResourceUrn {
-                return ResourceUrn(input!!, resourceName, fragmentName, instance)
-            }
-        }))
+        return Sets.newLinkedHashSet(Collections2.transform(possibleModules
+        ) { input -> ResourceUrn(input!!, resourceName, fragmentName, instance) })
     }
 
 
@@ -419,7 +437,7 @@ class AssetType<T : Asset<U>, U : AssetData>(
             try {
                 return AccessController.doPrivileged(PrivilegedExceptionAction {
                     for (producer in producers) {
-                        val data: Optional<U> = producer.produceData(asset.urn)
+                        val data: Optional<U> = producer.produce(asset.urn)
                         if (data.isPresent) {
                             return@PrivilegedExceptionAction Optional.of(loadAsset(asset.urn.instanceUrn, data.get()))
                         }
@@ -506,8 +524,7 @@ class AssetType<T : Asset<U>, U : AssetData>(
     fun getAvailableAssetUrns(): Set<ResourceUrn> {
         val availableAssets: MutableSet<ResourceUrn> = Sets.newLinkedHashSet(getLoadedAssetUrns())
         for (producer in producers) {
-            if (producer is RedirectableAssetDataProducer<*>)
-                availableAssets.addAll(producer.availableAssetUrns)
+            availableAssets.addAll(producer.availableAssetUrns)
         }
         return availableAssets
     }

@@ -3,9 +3,11 @@ package nexus.engine.assets.format.producer
 import mu.KotlinLogging
 import nexus.engine.assets.AssetData
 import nexus.engine.assets.format.FileChangeListener
+import nexus.engine.module.naming.Name
+import nexus.engine.module.naming.ResourceUrn
 import nexus.engine.module.resources.FileReference
-import nexus.engine.module.Name
-import nexus.engine.resource.ResourceUrn
+
+
 import java.util.*
 import javax.annotation.concurrent.ThreadSafe
 
@@ -56,7 +58,7 @@ class AssetFileDataProducer<U : AssetData> : RedirectableAssetDataProducer<U>, F
      * @return An optional with the AssetData, if available
      * @throws IOException If there is an error producing the AssetData.
      */
-    override fun produceData(urn: ResourceUrn): Optional<U> {
+    override fun produce(urn: ResourceUrn): Optional<U> {
         TODO("Not yet implemented")
     }
 

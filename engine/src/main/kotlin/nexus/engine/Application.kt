@@ -2,7 +2,9 @@ package nexus.engine
 
 //import marx.assets.fs.VirtualFileSystem
 
+import com.artemis.BaseSystem
 import dorkbox.messageBus.MessageBus
+import nexus.engine.assets.Assets
 import nexus.engine.camera.CameraController
 import nexus.engine.events.Event
 import nexus.engine.events.Events
@@ -50,15 +52,24 @@ abstract class Application<API : RenderAPI>() : IBus, LayerStack {
     /**
      * This is used to register our core systems privately
      */
-    private fun initialize() {
-        
-    }
+    private fun initialize() {}
 
+    /**
+     * This builds modules, assets, and everything, file/path/resource related
+     */
+    protected open fun buildAssets() {
+        val scannedTypes = Assets.typeManager.collect()
+        scannedTypes.forEach {
+            Assets.typeManager.addAssetType(it)
+            log.info("Registered asset type: ${it.assetClass.simpleName}")
+        }
+    }
 
     /**
      * This is called upon the start of the application
      */
     open fun start() {
+        buildAssets()
         initialize()
         subscribe(controller)
         instance = this
@@ -140,6 +151,13 @@ abstract class Application<API : RenderAPI>() : IBus, LayerStack {
     companion object {
         private val globalTimestamp: Timestep = Timestep(0.1f, 1.0f)
         lateinit var instance: Application<*>
+
+        /**
+         * Provides static access to the message bus, TODO move stuff like this into some context/registry system
+         */
+        val BaseSystem.app: Application<*> get() = instance
+
+
     }
 
 

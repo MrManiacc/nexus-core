@@ -2,10 +2,11 @@ package nexus.engine.events
 
 
 import nexus.engine.Application
-import nexus.engine.window.IWindow
 import nexus.engine.math.Vec2
 import nexus.engine.render.Shader.CompileResult
+import nexus.engine.scene.components.CTag
 import nexus.engine.utils.StringUtils.format
+import nexus.engine.window.IWindow
 import nexus.engine.render.Shader as RenderShader
 
 /*
@@ -19,6 +20,15 @@ object Events {
     object Asset {
 
     }
+
+    /**
+     * Used for entity events
+     */
+    object Entity {
+        data class TaggedEntityRemoved(val entityId: Int, val tag: CTag) : Event()
+        data class TaggedEntityAdded(val entityId: Int, val tag: CTag) : Event()
+    }
+
 
     /*
 Used for imgui related nexus.engine.events
